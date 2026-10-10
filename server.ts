@@ -146,6 +146,7 @@ async function startServer() {
   const PORT = parseInt(process.env.PORT || '3000', 10);
 
   app.use(express.json());
+  app.use(express.static(path.resolve(__dirname, 'public')));
 
   // 1. Public API: Get product and store settings
   app.get('/api/product', (req, res) => {

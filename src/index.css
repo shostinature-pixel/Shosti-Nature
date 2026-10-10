@@ -1,7 +1,29 @@
 @import "tailwindcss";
 
+/* Sutonny Font-Face Embedding (Unicode Sutonny for web compatibility) */
+@font-face {
+  font-family: 'SutonnyMJ';
+  src: local('SutonnyMJ'),
+       local('Sutonny OMJ'),
+       local('SutonnyOMJ'),
+       url('/fonts/sutonny-omj.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SutonnyOMJ';
+  src: local('SutonnyOMJ'),
+       local('Sutonny OMJ'),
+       url('/fonts/sutonny-omj.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  --font-bengali: 'Hind Siliguri', system-ui, -apple-system, sans-serif;
+  --font-bengali: 'SutonnyMJ', 'SutonnyOMJ', 'SolaimanLipi', 'Hind Siliguri', system-ui, -apple-system, sans-serif;
   --color-brand-forest: #133926;
   --color-brand-leaf: #1F6E43;
   --color-brand-leaf-light: #2E9E60;
@@ -12,11 +34,11 @@
 
 html {
   scroll-behavior: smooth;
-  font-family: var(--font-bengali);
+  font-family: 'SutonnyMJ', 'SutonnyOMJ', 'SolaimanLipi', 'Hind Siliguri', system-ui, -apple-system, sans-serif;
 }
 
 body {
-  font-family: var(--font-bengali);
+  font-family: 'SutonnyMJ', 'SutonnyOMJ', 'SolaimanLipi', 'Hind Siliguri', system-ui, -apple-system, sans-serif;
   background-color: var(--color-brand-cream);
   color: #1c1917;
 }
