@@ -1,0 +1,6 @@
+{
+  "name": "Shosti Nature - মেথি মিক্স (Methi Mix)",
+  "description": "Shosti Nature-এর খাঁটি মেথি মিক্স (Methi Mix)। প্রাকৃতিক উপাদানে তৈরি বিশ্বস্ত পণ্য। সারাদেশে ক্যাশ অন ডেলিভারি।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
