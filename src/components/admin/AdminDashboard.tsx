@@ -14,7 +14,8 @@ import {
   Settings,
   ListOrdered,
   Database,
-  RefreshCw
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
 
 interface Props {
@@ -31,6 +32,7 @@ export const AdminDashboard: React.FC<Props> = ({
   onProductUpdatedInParent
 }) => {
   const [loading, setLoading] = useState(true);
+  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(true);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [product, setProduct] = useState<ProductItem | null>(null);
@@ -47,6 +49,7 @@ export const AdminDashboard: React.FC<Props> = ({
       if (res.orders) setOrders(res.orders);
       if (res.product) setProduct(res.product);
       if (res.settings) setSettings(res.settings);
+      if (res.isBackendConnected !== undefined) setIsBackendConnected(res.isBackendConnected);
     } else if (res.error?.includes('সেশন') || res.error?.includes('অনুমোদিত')) {
       onLogout();
     }
@@ -130,7 +133,34 @@ export const AdminDashboard: React.FC<Props> = ({
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-6">
+        
+        {/* Backend Connection Indicator / Requirement 5 Demo Mode banner */}
+        {!isBackendConnected ? (
+          <div className="bg-amber-50 border border-amber-300/80 rounded-2xl p-4 text-xs sm:text-sm text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+              <div>
+                <span className="font-bold block text-amber-900">ডেমো / ক্লায়েন্ট মোড সক্রিয়</span>
+                <span className="text-stone-600">ব্যাকএন্ড সার্ভার সংযুক্ত নেই; তথ্য ব্রাউজারের লোকাল স্টোরেজে অস্থায়ীভাবে সংরক্ষিত হচ্ছে। স্থায়ীভাবে ডাটাবেসে সেভ করতে Express বা Supabase ব্যাকএন্ড সক্রিয় রাখুন।</span>
+              </div>
+            </div>
+            <span className="self-start sm:self-auto px-3 py-1 rounded-full bg-amber-200/90 text-amber-900 font-bold text-xs shrink-0">
+              ডেমো মোড
+            </span>
+          </div>
+        ) : (
+          <div className="bg-emerald-50/90 border border-emerald-200 rounded-xl px-4 py-2.5 text-xs text-emerald-900 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="font-bold">লাইভ ফুল-স্ট্যাক এক্সপ্রেস ব্যাকএন্ড সক্রিয়:</span>
+              <span className="text-stone-600">মূল্য পরিবর্তন ও নতুন অর্ডার সার্ভার ডাটাবেসে (data/store.json) স্থায়ীভাবে সংরক্ষিত হচ্ছে।</span>
+            </div>
+            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+              ডাটাবেস কানেক্টেড
+            </span>
+          </div>
+        )}
         
         {/* Metric Cards Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4">

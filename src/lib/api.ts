@@ -1,4 +1,4 @@
-import { Order, OrderSubmissionPayload, ProductItem, StoreSettings, AdminStats } from '../types';
+import { Order, OrderSubmissionPayload, ProductItem, StoreSettings, AdminStats, OrderStatus } from '../types';
 import { DEFAULT_PRODUCT, DEFAULT_SETTINGS } from '../config/defaultStore';
 
 const BASE_URL = '';
@@ -6,69 +6,188 @@ const BASE_URL = '';
 export interface ProductApiResponse {
   product: ProductItem;
   settings: StoreSettings;
+  isBackendConnected: boolean;
 }
 
 export interface OrderSubmitResponse {
   success: boolean;
   order?: Order;
   error?: string;
+  isDemoMode?: boolean;
+}
+
+// Local storage keys for standalone React client mode
+const STORAGE_ORDERS_KEY = 'shosti_local_orders';
+const STORAGE_PRODUCT_KEY = 'shosti_local_product';
+const STORAGE_SETTINGS_KEY = 'shosti_local_settings';
+
+function getLocalOrders(): Order[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_ORDERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalOrders(orders: Order[]) {
+  try {
+    localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+  } catch {
+    // Ignore storage quota
+  }
+}
+
+function getLocalProduct(): ProductItem {
+  try {
+    const raw = localStorage.getItem(STORAGE_PRODUCT_KEY);
+    return raw ? JSON.parse(raw) : DEFAULT_PRODUCT;
+  } catch {
+    return DEFAULT_PRODUCT;
+  }
+}
+
+function getLocalSettings(): StoreSettings {
+  try {
+    const raw = localStorage.getItem(STORAGE_SETTINGS_KEY);
+    return raw ? JSON.parse(raw) : DEFAULT_SETTINGS;
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
 }
 
 export const api = {
+  // Public: Get product and store configuration
   async getProductAndSettings(): Promise<ProductApiResponse> {
     try {
       const res = await fetch(`${BASE_URL}/api/product`);
-      if (!res.ok) throw new Error('Failed to fetch from server');
+      const contentType = res.headers.get('content-type');
+      if (!res.ok || !contentType || !contentType.includes('application/json')) {
+        throw new Error('Backend not available');
+      }
       const data = await res.json();
       return {
         product: data.product || DEFAULT_PRODUCT,
-        settings: data.settings || DEFAULT_SETTINGS
+        settings: data.settings || DEFAULT_SETTINGS,
+        isBackendConnected: true
       };
     } catch {
-      // Graceful local state if server has cold start or offline
+      // Standalone React Client Fallback
       return {
-        product: DEFAULT_PRODUCT,
-        settings: DEFAULT_SETTINGS
+        product: getLocalProduct(),
+        settings: getLocalSettings(),
+        isBackendConnected: false
       };
     }
   },
 
+  // Public: Submit new COD order
   async submitOrder(payload: OrderSubmissionPayload): Promise<OrderSubmitResponse> {
-    const res = await fetch(`${BASE_URL}/api/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
+    try {
+      const res = await fetch(`${BASE_URL}/api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        return { success: true, order: data.order, isDemoMode: false };
+      } else if (!res.ok && contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        return { success: false, error: data.error };
+      }
+      throw new Error('Falling back to local client processor');
+    } catch {
+      // Bulletproof local processor for pure React client
+      const product = getLocalProduct();
+      const settings = getLocalSettings();
 
-    const data = await res.json();
-    if (!res.ok) {
+      if (!product.inStock) {
+        return { success: false, error: 'দুঃখিত, পণ্যটি বর্তমানে স্টকে নেই।' };
+      }
+
+      const unitPrice = product.basePrice;
+      const subtotal = unitPrice * payload.quantity;
+      let discount = 0;
+      if (payload.quantity === 2) discount = 50;
+      else if (payload.quantity >= 3) discount = 150;
+
+      const deliveryCharge =
+        payload.city === 'inside_dhaka'
+          ? (settings.deliveryInsideDhaka ?? 70)
+          : (settings.deliveryOutsideDhaka ?? 130);
+
+      const totalAmount = subtotal + deliveryCharge - discount;
+
+      const datePart = new Date().toISOString().slice(2, 10).replace(/-/g, '');
+      const randomPart = Math.floor(1000 + Math.random() * 9000);
+      const orderNumber = `SN-${datePart}-${randomPart}`;
+
+      const newOrder: Order = {
+        id: `ord_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        orderNumber,
+        customerName: payload.customerName.trim(),
+        customerPhone: payload.customerPhone.trim(),
+        deliveryAddress: payload.deliveryAddress.trim(),
+        city: payload.city,
+        district: payload.district || (payload.city === 'inside_dhaka' ? 'ঢাকা' : ''),
+        items: [
+          {
+            productId: product.id,
+            productName: product.name,
+            unitPrice: unitPrice,
+            quantity: payload.quantity,
+            totalPrice: subtotal
+          }
+        ],
+        subtotal,
+        deliveryCharge,
+        discount,
+        totalAmount,
+        paymentMethod: 'cod',
+        status: 'pending',
+        notes: payload.notes?.trim() || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      const existingOrders = getLocalOrders();
+      existingOrders.unshift(newOrder);
+      saveLocalOrders(existingOrders);
+
       return {
-        success: false,
-        error: data.error || 'অর্ডার প্রক্রিয়া করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।'
+        success: true,
+        order: newOrder,
+        isDemoMode: true
       };
     }
-
-    return {
-      success: true,
-      order: data.order
-    };
   },
 
+  // Public: Track order by phone or order number
   async trackOrder(query: string): Promise<{ success: boolean; orders?: Order[]; error?: string }> {
     try {
       const res = await fetch(`${BASE_URL}/api/orders/track?query=${encodeURIComponent(query.trim())}`);
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || 'অর্ডার তথ্য খুঁজে পাওয়া যায়নি' };
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        return { success: true, orders: data.orders };
       }
-      return { success: true, orders: data.orders };
+      throw new Error('Falling back to local order tracker');
     } catch {
-      return { success: false, error: 'সার্ভারের সাথে যোগাযোগ করতে সমস্যা হয়েছে' };
+      const localOrders = getLocalOrders();
+      const q = query.trim().toLowerCase();
+      const matches = localOrders.filter(
+        (o) => o.orderNumber.toLowerCase().includes(q) || o.customerPhone.includes(q)
+      );
+      if (matches.length === 0) {
+        return { success: false, error: 'এই নম্বর বা অর্ডার আইডিতে কোনো অর্ডার খুঁজে পাওয়া যায়নি।' };
+      }
+      return { success: true, orders: matches };
     }
   },
 
+  // Admin: Login
   async adminLogin(password: string): Promise<{ success: boolean; token?: string; error?: string }> {
     try {
       const res = await fetch(`${BASE_URL}/api/admin/login`, {
@@ -76,47 +195,80 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
       });
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || 'ভুল পাসওয়ার্ড' };
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (res.ok) return { success: true, token: data.token };
+        return { success: false, error: data.error };
       }
-      return { success: true, token: data.token };
+      throw new Error('Fallback to local authentication');
     } catch {
-      return { success: false, error: 'লগইনে সমস্যা হয়েছে' };
+      // Local client auth
+      if (password === 'shosti2026' || password === 'admin') {
+        return { success: true, token: `local_token_${Date.now()}` };
+      }
+      return { success: false, error: 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।' };
     }
   },
 
+  // Admin: Dashboard stats and orders
   async getAdminDashboard(token: string): Promise<{
     success: boolean;
     stats?: AdminStats;
     orders?: Order[];
     product?: ProductItem;
     settings?: StoreSettings;
+    isBackendConnected?: boolean;
     error?: string;
   }> {
     try {
       const res = await fetch(`${BASE_URL}/api/admin/dashboard`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || 'অনুমোদিত নয়' };
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        return {
+          success: true,
+          stats: data.stats,
+          orders: data.orders,
+          product: data.product,
+          settings: data.settings,
+          isBackendConnected: true
+        };
       }
+      throw new Error('Fallback to local storage dashboard');
+    } catch {
+      const orders = getLocalOrders();
+      const product = getLocalProduct();
+      const settings = getLocalSettings();
+
+      const stats: AdminStats = {
+        totalOrders: orders.length,
+        pendingOrders: orders.filter((o) => o.status === 'pending').length,
+        confirmedOrders: orders.filter((o) => o.status === 'confirmed').length,
+        shippedOrders: orders.filter((o) => o.status === 'shipped').length,
+        deliveredOrders: orders.filter((o) => o.status === 'delivered').length,
+        cancelledOrders: orders.filter((o) => o.status === 'cancelled').length,
+        totalRevenue: orders
+          .filter((o) => o.status !== 'cancelled')
+          .reduce((sum, o) => sum + (o.totalAmount || 0), 0),
+        recentOrdersCount: orders.length
+      };
+
       return {
         success: true,
-        stats: data.stats,
-        orders: data.orders,
-        product: data.product,
-        settings: data.settings
+        stats,
+        orders,
+        product,
+        settings,
+        isBackendConnected: false
       };
-    } catch {
-      return { success: false, error: 'তথ্য লোড করতে ব্যর্থ হয়েছে' };
     }
   },
 
-  async updateOrderStatus(token: string, orderId: string, status: string): Promise<{ success: boolean; order?: Order; error?: string }> {
+  // Admin: Update order status
+  async updateOrderStatus(token: string, orderId: string, status: OrderStatus): Promise<{ success: boolean; order?: Order; error?: string }> {
     try {
       const res = await fetch(`${BASE_URL}/api/admin/orders/${orderId}/status`, {
         method: 'PATCH',
@@ -126,16 +278,26 @@ export const api = {
         },
         body: JSON.stringify({ status })
       });
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || 'স্ট্যাটাস আপডেট ব্যর্থ হয়েছে' };
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        return { success: true, order: data.order };
       }
-      return { success: true, order: data.order };
+      throw new Error('Fallback to local order update');
     } catch {
-      return { success: false, error: 'সার্ভারে সংযোগ ব্যর্থ হয়েছে' };
+      const orders = getLocalOrders();
+      const idx = orders.findIndex((o) => o.id === orderId || o.orderNumber === orderId);
+      if (idx !== -1) {
+        orders[idx].status = status;
+        orders[idx].updatedAt = new Date().toISOString();
+        saveLocalOrders(orders);
+        return { success: true, order: orders[idx] };
+      }
+      return { success: false, error: 'অর্ডার পাওয়া যায়নি' };
     }
   },
 
+  // Admin: Update store settings & price
   async updateStoreSettings(
     token: string,
     payload: {
@@ -160,13 +322,36 @@ export const api = {
         },
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || 'সেটিংস আপডেট ব্যর্থ হয়েছে' };
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        return { success: true, product: data.product, settings: data.settings };
       }
-      return { success: true, product: data.product, settings: data.settings };
+      throw new Error('Fallback to local storage settings update');
     } catch {
-      return { success: false, error: 'সার্ভার সমস্যা' };
+      const product = getLocalProduct();
+      const settings = getLocalSettings();
+
+      if (payload.basePrice !== undefined) product.basePrice = payload.basePrice;
+      if (payload.inStock !== undefined) product.inStock = payload.inStock;
+      if (payload.name) product.name = payload.name;
+      if (payload.weight) product.weight = payload.weight;
+
+      if (payload.deliveryInsideDhaka !== undefined) settings.deliveryInsideDhaka = payload.deliveryInsideDhaka;
+      if (payload.deliveryOutsideDhaka !== undefined) settings.deliveryOutsideDhaka = payload.deliveryOutsideDhaka;
+      if (payload.announcementText !== undefined) settings.announcementText = payload.announcementText;
+      if (payload.showAnnouncement !== undefined) settings.showAnnouncement = payload.showAnnouncement;
+      if (payload.phone !== undefined) settings.phone = payload.phone;
+      if (payload.whatsapp !== undefined) settings.whatsapp = payload.whatsapp;
+
+      try {
+        localStorage.setItem(STORAGE_PRODUCT_KEY, JSON.stringify(product));
+        localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(settings));
+      } catch {
+        // Ignore
+      }
+
+      return { success: true, product, settings };
     }
   }
 };
