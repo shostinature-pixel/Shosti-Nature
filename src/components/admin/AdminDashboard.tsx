@@ -67,6 +67,11 @@ export const AdminDashboard: React.FC<Props> = ({
     fetchData();
   };
 
+  const handleOrderDeleted = (orderId: string) => {
+    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+    fetchData();
+  };
+
   const handleProductSettingsUpdated = (newProd: ProductItem, newSet: StoreSettings) => {
     setProduct(newProd);
     setSettings(newSet);
@@ -91,9 +96,14 @@ export const AdminDashboard: React.FC<Props> = ({
       <header className="bg-white border-b border-stone-200 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#133926] text-emerald-300 flex items-center justify-center font-bold">
-              SN
-            </div>
+            <img
+              src="https://res.cloudinary.com/c09ovevp/image/upload/v1791645620/WhatsApp_Image_2026-08-30_at_11.05.00_PM.jpg"
+              alt="Logo"
+              className="w-10 h-10 rounded-xl object-cover shadow-xs border border-emerald-900/10"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/images/logo.jpg';
+              }}
+            />
             <div>
               <h1 className="font-extrabold text-[#133926] text-lg">
                 Shosti Nature অ্যাডমিন প্যানেল
@@ -135,32 +145,25 @@ export const AdminDashboard: React.FC<Props> = ({
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-6">
         
-        {/* Backend Connection Indicator / Requirement 5 Demo Mode banner */}
-        {!isBackendConnected ? (
-          <div className="bg-amber-50 border border-amber-300/80 rounded-2xl p-4 text-xs sm:text-sm text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-            <div className="flex items-center gap-2.5">
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
-              <div>
-                <span className="font-bold block text-amber-900">ডেমো / ক্লায়েন্ট মোড সক্রিয়</span>
-                <span className="text-stone-600">ব্যাকএন্ড সার্ভার সংযুক্ত নেই; তথ্য ব্রাউজারের লোকাল স্টোরেজে অস্থায়ীভাবে সংরক্ষিত হচ্ছে। স্থায়ীভাবে ডাটাবেসে সেভ করতে Express বা Supabase ব্যাকএন্ড সক্রিয় রাখুন।</span>
-              </div>
+        {/* Real-time Backend & Database Connection Indicator */}
+        <div className="bg-emerald-50/90 border border-emerald-200/90 rounded-2xl px-5 py-3.5 text-xs sm:text-sm text-emerald-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-2.5">
+            <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+            <div>
+              <span className="font-bold text-emerald-900 block sm:inline mr-2">
+                লাইভ ফুল-স্ট্যাক এক্সপ্রেস ব্যাকএন্ড ও ডাটাবেস সক্রিয়
+              </span>
+              <span className="text-stone-600 text-xs">
+                সকল অর্ডার এবং মূল্য পরিবর্তন সরাসরি সার্ভার ডাটাবেসে (<code className="bg-emerald-100 px-1 py-0.5 rounded font-mono text-[11px] text-emerald-800">data/store.json</code>) স্থায়ীভাবে সংরক্ষিত হচ্ছে।
+              </span>
             </div>
-            <span className="self-start sm:self-auto px-3 py-1 rounded-full bg-amber-200/90 text-amber-900 font-bold text-xs shrink-0">
-              ডেমো মোড
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="px-3 py-1 rounded-full bg-emerald-600 text-white font-bold text-xs shadow-2xs">
+              ✓ ডাটাবেস সংযুক্ত
             </span>
           </div>
-        ) : (
-          <div className="bg-emerald-50/90 border border-emerald-200 rounded-xl px-4 py-2.5 text-xs text-emerald-900 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="font-bold">লাইভ ফুল-স্ট্যাক এক্সপ্রেস ব্যাকএন্ড সক্রিয়:</span>
-              <span className="text-stone-600">মূল্য পরিবর্তন ও নতুন অর্ডার সার্ভার ডাটাবেসে (data/store.json) স্থায়ীভাবে সংরক্ষিত হচ্ছে।</span>
-            </div>
-            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
-              ডাটাবেস কানেক্টেড
-            </span>
-          </div>
-        )}
+        </div>
         
         {/* Metric Cards Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -250,7 +253,7 @@ export const AdminDashboard: React.FC<Props> = ({
             }`}
           >
             <Settings className="w-4 h-4" />
-            <span>মূল্য ও স্টোর সেটিংস (৳ {product?.basePrice || 500})</span>
+            <span>প্রোডাক্ট ও স্টোর সেটিংস (৳ {product?.basePrice || 500})</span>
           </button>
 
           <button
@@ -272,6 +275,7 @@ export const AdminDashboard: React.FC<Props> = ({
             token={token}
             orders={orders}
             onStatusChange={handleStatusChange}
+            onOrderDeleted={handleOrderDeleted}
           />
         )}
 

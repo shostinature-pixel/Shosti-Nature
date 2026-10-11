@@ -211,6 +211,16 @@ export const api = {
     }
   },
 
+  // Health check
+  async checkHealth(): Promise<boolean> {
+    try {
+      const res = await fetch(`${BASE_URL}/api/health`);
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
   // Admin: Dashboard stats and orders
   async getAdminDashboard(token: string): Promise<{
     success: boolean;
@@ -225,6 +235,12 @@ export const api = {
       const res = await fetch(`${BASE_URL}/api/admin/dashboard`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (res.status === 401) {
+        return {
+          success: false,
+          error: 'সেশন মেয়াদোত্তীর্ণ হয়েছে। অনুগ্রহ করে আবার লগইন করুন।'
+        };
+      }
       const contentType = res.headers.get('content-type');
       if (res.ok && contentType && contentType.includes('application/json')) {
         const data = await res.json();
@@ -237,8 +253,22 @@ export const api = {
           isBackendConnected: true
         };
       }
-      throw new Error('Fallback to local storage dashboard');
-    } catch {
+      throw new Error('Backend failed');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '';
+      if (errorMessage.includes('সেশন')) {
+        return { success: false, error: errorMessage };
+      }
+
+      // Check if backend is actually reachable via health endpoint
+      let isAlive = false;
+      try {
+        const healthRes = await fetch(`${BASE_URL}/api/health`);
+        isAlive = healthRes.ok;
+      } catch {
+        isAlive = false;
+      }
+
       const orders = getLocalOrders();
       const product = getLocalProduct();
       const settings = getLocalSettings();
@@ -262,7 +292,7 @@ export const api = {
         orders,
         product,
         settings,
-        isBackendConnected: false
+        isBackendConnected: isAlive
       };
     }
   },
@@ -297,14 +327,46 @@ export const api = {
     }
   },
 
-  // Admin: Update store settings & price
+  // Admin: Delete order
+  async deleteOrder(token: string, orderId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const res = await fetch(`${BASE_URL}/api/admin/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
+        return { success: true };
+      }
+      throw new Error('Fallback to local delete');
+    } catch {
+      const orders = getLocalOrders();
+      const filtered = orders.filter((o) => o.id !== orderId && o.orderNumber !== orderId);
+      saveLocalOrders(filtered);
+      return { success: true };
+    }
+  },
+
+  // Admin: Update store settings & product
   async updateStoreSettings(
     token: string,
     payload: {
       basePrice?: number;
+      originalPrice?: number;
       inStock?: boolean;
       name?: string;
+      subtitle?: string;
+      category?: string;
+      image?: string;
+      galleryImages?: string[] | string;
       weight?: string;
+      manufacturer?: string;
+      ingredients?: string[] | string;
+      usageInstructions?: string;
+      storageInstructions?: string;
+      warningNotice?: string;
       deliveryInsideDhaka?: number;
       deliveryOutsideDhaka?: number;
       announcementText?: string;
@@ -333,9 +395,32 @@ export const api = {
       const settings = getLocalSettings();
 
       if (payload.basePrice !== undefined) product.basePrice = payload.basePrice;
+      if (payload.originalPrice !== undefined) product.originalPrice = payload.originalPrice;
       if (payload.inStock !== undefined) product.inStock = payload.inStock;
       if (payload.name) product.name = payload.name;
+      if (payload.subtitle !== undefined) product.subtitle = payload.subtitle;
+      if (payload.category !== undefined) product.category = payload.category;
+      if (payload.image !== undefined && payload.image) product.image = payload.image;
+      if (payload.galleryImages !== undefined) {
+        if (Array.isArray(payload.galleryImages)) {
+          product.galleryImages = payload.galleryImages;
+        } else if (typeof payload.galleryImages === 'string') {
+          product.galleryImages = payload.galleryImages.split(',').map((s) => s.trim()).filter(Boolean);
+        }
+      }
       if (payload.weight) product.weight = payload.weight;
+      if (payload.manufacturer !== undefined) product.manufacturer = payload.manufacturer;
+      if (payload.usageInstructions !== undefined) product.usageInstructions = payload.usageInstructions;
+      if (payload.storageInstructions !== undefined) product.storageInstructions = payload.storageInstructions;
+      if (payload.warningNotice !== undefined) product.warningNotice = payload.warningNotice;
+
+      if (payload.ingredients !== undefined) {
+        if (Array.isArray(payload.ingredients)) {
+          product.ingredients = payload.ingredients;
+        } else if (typeof payload.ingredients === 'string') {
+          product.ingredients = payload.ingredients.split(',').map((s) => s.trim()).filter(Boolean);
+        }
+      }
 
       if (payload.deliveryInsideDhaka !== undefined) settings.deliveryInsideDhaka = payload.deliveryInsideDhaka;
       if (payload.deliveryOutsideDhaka !== undefined) settings.deliveryOutsideDhaka = payload.deliveryOutsideDhaka;

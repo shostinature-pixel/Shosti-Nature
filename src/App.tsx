@@ -9,6 +9,7 @@ import { AnnouncementBar } from './components/layout/AnnouncementBar';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { StickyMobileBar } from './components/layout/StickyMobileBar';
+import { FloatingSupportBubble } from './components/layout/FloatingSupportBubble';
 import { HeroSection } from './components/landing/HeroSection';
 import { ProductAbout } from './components/landing/ProductAbout';
 import { BenefitsSection } from './components/landing/BenefitsSection';
@@ -159,7 +160,7 @@ export default function App() {
         <BenefitsSection />
 
         {/* 6. Gallery Section */}
-        <GallerySection mainImage={product.image} />
+        <GallerySection product={product} />
 
         {/* 7. Product Specs */}
         <ProductSpecs product={product} />
@@ -204,7 +205,10 @@ export default function App() {
         }}
       />
 
-      {/* 15. Mobile Sticky Order Bar */}
+      {/* 15. Floating Support & WhatsApp Bubble Button */}
+      <FloatingSupportBubble settings={settings} />
+
+      {/* 16. Mobile Sticky Order Bar */}
       <StickyMobileBar
         product={product}
         onOrderClick={handleScrollToOrder}

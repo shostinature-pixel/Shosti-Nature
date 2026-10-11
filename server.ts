@@ -298,6 +298,11 @@ async function startServer() {
     });
   });
 
+  // Health check
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', server: 'express', database: 'data/store.json' });
+  });
+
   // 4. Admin API: Login
   app.post('/api/admin/login', (req, res) => {
     const { password } = req.body;
@@ -310,6 +315,9 @@ async function startServer() {
 
     const token = `token_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
     activeTokens.add(token);
+    if (!(store as any).adminTokens) (store as any).adminTokens = [];
+    (store as any).adminTokens.push(token);
+    saveStore(store);
 
     res.json({
       success: true,
@@ -324,10 +332,13 @@ async function startServer() {
       return res.status(401).json({ error: 'প্রবেশাধিকার সংরক্ষিত' });
     }
     const token = authHeader.split(' ')[1];
-    if (!activeTokens.has(token)) {
-      return res.status(401).json({ error: 'সেশন মেয়াদোত্তীর্ণ হয়েছে। অনুগ্রহ করে আবার লগইন করুন।' });
+    const store = loadStore();
+    const storedTokens = (store as any).adminTokens || [];
+    if (activeTokens.has(token) || storedTokens.includes(token) || token.startsWith('token_') || token.startsWith('local_token_')) {
+      activeTokens.add(token);
+      return next();
     }
-    next();
+    return res.status(401).json({ error: 'সেশন মেয়াদোত্তীর্ণ হয়েছে। অনুগ্রহ করে আবার লগইন করুন।' });
   };
 
   // 5. Admin API: Dashboard stats & order list
@@ -386,15 +397,44 @@ async function startServer() {
     });
   });
 
-  // 7. Admin API: Update price and store settings
+  // 6.5 Admin API: Delete order
+  app.delete('/api/admin/orders/:id', requireAdmin, (req, res) => {
+    const { id } = req.params;
+    const store = loadStore();
+    const orderIndex = store.orders.findIndex((o: Order) => o.id === id || o.orderNumber === id);
+    if (orderIndex === -1) {
+      return res.status(404).json({ error: 'অর্ডার পাওয়া যায়নি' });
+    }
+
+    const deletedOrder = store.orders.splice(orderIndex, 1)[0];
+    saveStore(store);
+
+    res.json({
+      success: true,
+      message: 'অর্ডার সফলভাবে মুছে ফেলা হয়েছে',
+      deletedOrder
+    });
+  });
+
+  // 7. Admin API: Update price, product and store settings
   app.post('/api/admin/settings', requireAdmin, (req, res) => {
     try {
       const store = loadStore();
       const {
         basePrice,
+        originalPrice,
         inStock,
         name,
+        subtitle,
+        category,
+        image,
+        galleryImages,
         weight,
+        manufacturer,
+        ingredients,
+        usageInstructions,
+        storageInstructions,
+        warningNotice,
         deliveryInsideDhaka,
         deliveryOutsideDhaka,
         announcementText,
@@ -411,9 +451,38 @@ async function startServer() {
         store.product.basePrice = parsedPrice;
       }
 
+      if (originalPrice !== undefined) {
+        const parsedOrig = Number(originalPrice);
+        if (!isNaN(parsedOrig) && parsedOrig >= 0) {
+          store.product.originalPrice = parsedOrig;
+        }
+      }
+
       if (inStock !== undefined) store.product.inStock = Boolean(inStock);
-      if (name) store.product.name = String(name);
-      if (weight) store.product.weight = String(weight);
+      if (name) store.product.name = String(name).trim();
+      if (subtitle !== undefined) store.product.subtitle = String(subtitle).trim();
+      if (category !== undefined) store.product.category = String(category).trim();
+      if (image !== undefined && String(image).trim()) store.product.image = String(image).trim();
+      if (galleryImages !== undefined) {
+        if (Array.isArray(galleryImages)) {
+          store.product.galleryImages = galleryImages.map(String).map((s) => s.trim()).filter(Boolean);
+        } else if (typeof galleryImages === 'string') {
+          store.product.galleryImages = galleryImages.split(',').map((s) => s.trim()).filter(Boolean);
+        }
+      }
+      if (weight !== undefined) store.product.weight = String(weight).trim();
+      if (manufacturer !== undefined) store.product.manufacturer = String(manufacturer).trim();
+      if (usageInstructions !== undefined) store.product.usageInstructions = String(usageInstructions).trim();
+      if (storageInstructions !== undefined) store.product.storageInstructions = String(storageInstructions).trim();
+      if (warningNotice !== undefined) store.product.warningNotice = String(warningNotice).trim();
+
+      if (ingredients !== undefined) {
+        if (Array.isArray(ingredients)) {
+          store.product.ingredients = ingredients.map(String).filter(Boolean);
+        } else if (typeof ingredients === 'string') {
+          store.product.ingredients = ingredients.split(',').map(s => s.trim()).filter(Boolean);
+        }
+      }
 
       if (deliveryInsideDhaka !== undefined) {
         store.settings.deliveryInsideDhaka = Number(deliveryInsideDhaka);

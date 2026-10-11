@@ -24,9 +24,14 @@ export const Footer: React.FC<Props> = ({
           {/* Brand Col */}
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-full bg-emerald-700/60 flex items-center justify-center text-emerald-300">
-                <Sparkles className="w-4 h-4" />
-              </div>
+              <img
+                src="https://res.cloudinary.com/c09ovevp/image/upload/v1791645620/WhatsApp_Image_2026-08-30_at_11.05.00_PM.jpg"
+                alt={settings.storeName}
+                className="w-10 h-10 rounded-full object-cover shadow-sm border border-emerald-500/20"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/logo.jpg';
+                }}
+              />
               <span className="text-xl font-bold text-white tracking-wide">
                 {settings.storeName}
               </span>

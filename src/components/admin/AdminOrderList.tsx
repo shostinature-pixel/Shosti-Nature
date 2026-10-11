@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
 import { Order, OrderStatus } from '../../types';
 import { AdminStatusBadge } from './AdminStatusBadge';
-import { Search, Download, Phone, MapPin, Calendar, Eye, X, Filter } from 'lucide-react';
+import { Search, Download, Phone, Eye, X, Filter, Trash2, AlertTriangle, RefreshCw } from 'lucide-react';
 import { api } from '../../lib/api';
 
 interface Props {
   token: string;
   orders: Order[];
   onStatusChange: (orderId: string, newStatus: OrderStatus) => void;
+  onOrderDeleted: (orderId: string) => void;
 }
 
-export const AdminOrderList: React.FC<Props> = ({ token, orders, onStatusChange }) => {
+export const AdminOrderList: React.FC<Props> = ({ token, orders, onStatusChange, onOrderDeleted }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  
+  // Deletion modal state
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Filtered orders
   const filteredOrders = orders.filter((o) => {
@@ -41,8 +46,22 @@ export const AdminOrderList: React.FC<Props> = ({ token, orders, onStatusChange 
     }
   };
 
+  const confirmDeleteOrder = async () => {
+    if (!orderToDelete) return;
+    setIsDeleting(true);
+    const res = await api.deleteOrder(token, orderToDelete.id);
+    setIsDeleting(false);
+
+    if (res.success) {
+      onOrderDeleted(orderToDelete.id);
+      if (selectedOrder && selectedOrder.id === orderToDelete.id) {
+        setSelectedOrder(null);
+      }
+      setOrderToDelete(null);
+    }
+  };
+
   const handleExportCsv = () => {
-    // Trigger download via auth headers or direct fetch blob
     fetch('/api/admin/export', {
       headers: {
         Authorization: `Bearer ${token}`
@@ -191,13 +210,24 @@ export const AdminOrderList: React.FC<Props> = ({ token, orders, onStatusChange 
                   </td>
 
                   <td className="py-4 px-4 sm:px-6 text-right">
-                    <button
-                      onClick={() => setSelectedOrder(ord)}
-                      className="p-1.5 rounded-lg text-stone-500 hover:text-[#133926] hover:bg-stone-100 transition-colors cursor-pointer"
-                      title="বিস্তারিত দেখুন"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => setSelectedOrder(ord)}
+                        className="p-1.5 rounded-lg text-stone-500 hover:text-[#133926] hover:bg-stone-100 transition-colors cursor-pointer"
+                        title="বিস্তারিত দেখুন"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+
+                      {/* Delete Button */}
+                      <button
+                        onClick={() => setOrderToDelete(ord)}
+                        className="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="অর্ডার মুছে ফেলুন"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -205,6 +235,56 @@ export const AdminOrderList: React.FC<Props> = ({ token, orders, onStatusChange 
           </tbody>
         </table>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {orderToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative border border-stone-200 text-center space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <div>
+              <h3 className="font-extrabold text-stone-900 text-lg">
+                অর্ডারটি মুছে ফেলতে চান?
+              </h3>
+              <p className="text-xs text-stone-500 mt-1">
+                অর্ডার নম্বর: <strong className="text-stone-800">{orderToDelete.orderNumber}</strong> ({orderToDelete.customerName})। এই অর্ডারটি স্থায়ীভাবে ডাটাবেস থেকে মুছে যাবে।
+              </p>
+            </div>
+
+            <div className="flex gap-2.5 pt-2">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setOrderToDelete(null)}
+                className="flex-1 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-bold text-xs hover:bg-stone-50 transition-colors cursor-pointer"
+              >
+                বাতিল
+              </button>
+
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={confirmDeleteOrder}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                {isDeleting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>মুছে ফেলা হচ্ছে...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>হ্যাঁ, মুছে ফেলুন</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Order Detail Modal */}
       {selectedOrder && (
@@ -218,11 +298,21 @@ export const AdminOrderList: React.FC<Props> = ({ token, orders, onStatusChange 
               <X className="w-5 h-5" />
             </button>
 
-            <div className="pb-3 border-b border-stone-100">
-              <span className="text-xs font-bold text-stone-400 uppercase">অর্ডার বিবরণী</span>
-              <h3 className="text-xl font-extrabold text-[#133926]">
-                {selectedOrder.orderNumber}
-              </h3>
+            <div className="pb-3 border-b border-stone-100 flex items-center justify-between pr-8">
+              <div>
+                <span className="text-xs font-bold text-stone-400 uppercase">অর্ডার বিবরণী</span>
+                <h3 className="text-xl font-extrabold text-[#133926]">
+                  {selectedOrder.orderNumber}
+                </h3>
+              </div>
+
+              <button
+                onClick={() => setOrderToDelete(selectedOrder)}
+                className="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>মুছে ফেলুন</span>
+              </button>
             </div>
 
             <div className="space-y-2.5 text-xs sm:text-sm text-stone-700">

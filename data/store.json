@@ -10,7 +10,8 @@
     "inStock": true,
     "image": "/images/default-methi-mix.jpg",
     "galleryImages": [
-      "/images/default-methi-mix.jpg"
+      "/images/default-methi-mix.jpg",
+      "/images/logo.jpg"
     ],
     "ingredients": [
       "বাছাইকৃত তাজা মেথি দানা (Fenugreek Seed)",
@@ -65,10 +66,10 @@
       "discount": 0,
       "totalAmount": 570,
       "paymentMethod": "cod",
-      "status": "confirmed",
+      "status": "cancelled",
       "notes": "",
       "createdAt": "2026-10-10T16:55:44.107Z",
-      "updatedAt": "2026-10-10T16:56:29.253Z"
+      "updatedAt": "2026-10-11T03:54:05.894Z"
     },
     {
       "id": "ord-init-1",
@@ -97,5 +98,10 @@
       "createdAt": "2026-10-10T11:55:25.045Z",
       "updatedAt": "2026-10-10T12:55:25.045Z"
     }
+  ],
+  "adminTokens": [
+    "token_1791690613850_1wn6do1p",
+    "token_1791691811367_5kfhgajl",
+    "token_1791693340970_juxxzaw0"
   ]
 }

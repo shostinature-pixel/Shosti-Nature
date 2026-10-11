@@ -42,9 +42,14 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
         </button>
 
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-[#133926] text-emerald-300 mx-auto flex items-center justify-center shadow-md">
-            <Lock className="w-7 h-7" />
-          </div>
+          <img
+            src="https://res.cloudinary.com/c09ovevp/image/upload/v1791645620/WhatsApp_Image_2026-08-30_at_11.05.00_PM.jpg"
+            alt="Logo"
+            className="w-16 h-16 rounded-2xl object-cover mx-auto shadow-md border border-stone-200"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/logo.jpg';
+            }}
+          />
           <h2 className="text-2xl font-extrabold text-[#133926]">
             Shosti Nature অ্যাডমিন প্যানেল
           </h2>

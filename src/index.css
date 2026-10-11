@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-bengali: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Poppins', 'Hind Siliguri', sans-serif;
+  --font-bengali: 'Poppins', 'Hind Siliguri', sans-serif;
   --color-brand-forest: #133926;
   --color-brand-leaf: #1F6E43;
   --color-brand-leaf-light: #2E9E60;
@@ -12,13 +13,49 @@
 
 html {
   scroll-behavior: smooth;
-  font-family: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
   background-color: var(--color-brand-cream);
   color: #1c1917;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* হেডলাইন: 600–700 font-weight */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+/* সাধারণ লেখা: 400–500 font-weight */
+p, span, li, label, input, textarea, select {
+  font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* বাটন: 600 font-weight */
+button, [role="button"], .btn {
+  font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+}
+
+/* বাংলা যুক্তাক্ষর ও কার-চিহ্ন স্পষ্ট এবং মোবাইল ফ্রেন্ডলি রাখার জন্য লাইন-হাইট অপটিমাইজেশন */
+.bangla-text {
+  font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+  line-height: 1.65;
 }
 
 /* Custom subtle scrollbar */

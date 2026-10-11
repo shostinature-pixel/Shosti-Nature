@@ -31,9 +31,14 @@ export const Header: React.FC<Props> = ({
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 sm:h-20 flex items-center justify-between">
         {/* Brand Logo */}
         <a href="#hero" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#133926] flex items-center justify-center text-emerald-300 shadow-sm transition-transform group-hover:scale-105">
-            <Sparkles className="w-5 h-5 text-emerald-300" />
-          </div>
+          <img
+            src="https://res.cloudinary.com/c09ovevp/image/upload/v1791645620/WhatsApp_Image_2026-08-30_at_11.05.00_PM.jpg"
+            alt={settings.storeName}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover shadow-sm border border-emerald-900/10 transition-transform group-hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/logo.jpg';
+            }}
+          />
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-xl sm:text-2xl font-bold tracking-tight text-[#133926]">
