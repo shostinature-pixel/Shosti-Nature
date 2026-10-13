@@ -141,8 +141,8 @@ export const OrderForm: React.FC<Props> = ({
           <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#1F6E43] uppercase block mb-1">
             ক্যাশ অন ডেলিভারি
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926]">
-            মেথি মিক্স অর্ডার ফর্ম
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926] animate-bubble-gum">
+            {product.name} অর্ডার ফর্ম
           </h2>
           <p className="text-stone-600 text-sm sm:text-base mt-2">
             নিচের ফর্মটি পূরণ করে অর্ডার সম্পন্ন করুন। আমাদের প্রতিনিধি ফোন করে অর্ডার নিশ্চিত করবেন।

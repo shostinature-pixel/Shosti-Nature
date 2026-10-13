@@ -28,7 +28,7 @@ export const HeroSection: React.FC<Props> = ({ product, settings, onOrderClick }
             </div>
 
             {/* Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#133926] leading-tight sm:leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#133926] leading-tight sm:leading-tight animate-bubble-gum">
               প্রতিদিনের সুস্থতায় প্রকৃতির বিশুদ্ধ ছোঁয়া —{' '}
               <span className="text-[#1F6E43] underline decoration-emerald-300 decoration-wavy underline-offset-8">
                 {product.name}
@@ -74,7 +74,7 @@ export const HeroSection: React.FC<Props> = ({ product, settings, onOrderClick }
                 <button
                   onClick={onOrderClick}
                   disabled={!product.inStock}
-                  className="flex-1 flex items-center justify-center gap-2.5 bg-[#1F6E43] hover:bg-[#133926] disabled:bg-stone-300 text-white py-3.5 px-6 rounded-xl font-bold text-base shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                  className="flex-1 flex items-center justify-center gap-2.5 bg-[#1F6E43] hover:bg-[#133926] disabled:bg-stone-300 text-white py-3.5 px-6 rounded-xl font-bold text-base shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer animate-order-bounce"
                 >
                   <ShoppingBag className="w-5 h-5" />
                   <span>ক্যাশ অন ডেলিভারিতে অর্ডার করুন</span>

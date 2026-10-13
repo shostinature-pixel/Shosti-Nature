@@ -435,6 +435,18 @@ async function startServer() {
         usageInstructions,
         storageInstructions,
         warningNotice,
+        aboutTitle,
+        aboutDesc1,
+        aboutDesc2,
+        benefitsTitle,
+        benefitsSubtitle,
+        usageTitle,
+        usageSubtitle,
+        faqTitle,
+        faqSubtitle,
+        benefitsList,
+        usageSteps,
+        faqList,
         deliveryInsideDhaka,
         deliveryOutsideDhaka,
         announcementText,
@@ -475,6 +487,26 @@ async function startServer() {
       if (usageInstructions !== undefined) store.product.usageInstructions = String(usageInstructions).trim();
       if (storageInstructions !== undefined) store.product.storageInstructions = String(storageInstructions).trim();
       if (warningNotice !== undefined) store.product.warningNotice = String(warningNotice).trim();
+
+      if (aboutTitle !== undefined) store.product.aboutTitle = String(aboutTitle).trim();
+      if (aboutDesc1 !== undefined) store.product.aboutDesc1 = String(aboutDesc1).trim();
+      if (aboutDesc2 !== undefined) store.product.aboutDesc2 = String(aboutDesc2).trim();
+      if (benefitsTitle !== undefined) store.product.benefitsTitle = String(benefitsTitle).trim();
+      if (benefitsSubtitle !== undefined) store.product.benefitsSubtitle = String(benefitsSubtitle).trim();
+      if (usageTitle !== undefined) store.product.usageTitle = String(usageTitle).trim();
+      if (usageSubtitle !== undefined) store.product.usageSubtitle = String(usageSubtitle).trim();
+      if (faqTitle !== undefined) store.product.faqTitle = String(faqTitle).trim();
+      if (faqSubtitle !== undefined) store.product.faqSubtitle = String(faqSubtitle).trim();
+
+      if (benefitsList !== undefined && Array.isArray(benefitsList)) {
+        store.product.benefitsList = benefitsList;
+      }
+      if (usageSteps !== undefined && Array.isArray(usageSteps)) {
+        store.product.usageSteps = usageSteps;
+      }
+      if (faqList !== undefined && Array.isArray(faqList)) {
+        store.product.faqList = faqList;
+      }
 
       if (ingredients !== undefined) {
         if (Array.isArray(ingredients)) {

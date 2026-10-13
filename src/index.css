@@ -34,15 +34,22 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Poppins', 'Hind Siliguri', sans-serif;
   font-weight: 700;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
+  line-height: 1.4;
+  letter-spacing: 0;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 /* সাধারণ লেখা: 400–500 font-weight */
 p, span, li, label, input, textarea, select {
   font-family: 'Poppins', 'Hind Siliguri', sans-serif;
   font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.65;
+}
+
+/* মাঝারি গুরুত্বের সাধারণ টেক্সট (500 font-weight) */
+.font-medium, strong, b {
+  font-weight: 500;
 }
 
 /* বাটন: 600 font-weight */
@@ -52,10 +59,11 @@ button, [role="button"], .btn {
   letter-spacing: 0.01em;
 }
 
-/* বাংলা যুক্তাক্ষর ও কার-চিহ্ন স্পষ্ট এবং মোবাইল ফ্রেন্ডলি রাখার জন্য লাইন-হাইট অপটিমাইজেশন */
+/* বাংলা যুক্তাক্ষর ও কার-চিহ্ন স্পষ্ট এবং মোবাইল ফ্রেন্ডলি রাখার জন্য অপটিমাইজেশন */
 .bangla-text {
   font-family: 'Poppins', 'Hind Siliguri', sans-serif;
-  line-height: 1.65;
+  line-height: 1.7;
+  letter-spacing: 0;
 }
 
 /* Custom subtle scrollbar */
@@ -77,4 +85,71 @@ button, [role="button"], .btn {
 :focus-visible {
   outline: 2px solid #1F6E43;
   outline-offset: 2px;
+}
+
+/* Wave animation for support floating bubble */
+@keyframes wave-pulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-8px) scale(1.05);
+  }
+  60% {
+    transform: translateY(-3px) scale(1.02);
+  }
+}
+
+.animate-wave {
+  animation: wave-pulse 2.5s ease-in-out infinite;
+}
+
+/* Announcement marquee animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 22s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Order button continuous bounce */
+@keyframes order-bounce {
+  0%, 100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(-8px);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.animate-order-bounce {
+  animation: order-bounce 1s infinite;
+}
+
+/* Bubble-gum headline up-and-down floating */
+@keyframes bubble-gum {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+.animate-bubble-gum {
+  animation: bubble-gum 2.5s ease-in-out infinite;
 }

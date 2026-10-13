@@ -87,7 +87,7 @@ export const FloatingSupportBubble: React.FC<Props> = ({ settings }) => {
           className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 cursor-pointer ${
             isOpen
               ? 'bg-stone-800 text-white rotate-90 scale-95'
-              : 'bg-[#25D366] hover:bg-[#20ba59] text-white hover:scale-105 ring-4 ring-[#25D366]/20 shadow-[#25D366]/30'
+              : 'bg-[#25D366] hover:bg-[#20ba59] text-white hover:scale-105 ring-4 ring-[#25D366]/20 shadow-[#25D366]/30 animate-wave'
           }`}
           aria-label="কাস্টমার সাপোর্ট ও হোয়াটসঅ্যাপ"
           title="সাপোর্ট ও হোয়াটসঅ্যাপ"

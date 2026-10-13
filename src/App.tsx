@@ -157,7 +157,7 @@ export default function App() {
         <ProductAbout product={product} />
 
         {/* 5. Benefits Section */}
-        <BenefitsSection />
+        <BenefitsSection product={product} />
 
         {/* 6. Gallery Section */}
         <GallerySection product={product} />
@@ -182,7 +182,7 @@ export default function App() {
         <CustomerReviews />
 
         {/* 12. FAQ Section */}
-        <FAQSection />
+        <FAQSection product={product} />
 
         {/* 13. Order Form */}
         <OrderForm

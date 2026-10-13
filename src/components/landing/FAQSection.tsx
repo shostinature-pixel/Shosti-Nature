@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 import { DEFAULT_FAQS } from '../../config/defaultStore';
+import { ProductItem } from '../../types';
 
-export const FAQSection: React.FC = () => {
+interface Props {
+  product: ProductItem;
+}
+
+export const FAQSection: React.FC<Props> = ({ product }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const toggle = (idx: number) => {
     setOpenIndex(openIndex === idx ? null : idx);
   };
+
+  const faqList = (product.faqList && product.faqList.length > 0)
+    ? product.faqList
+    : DEFAULT_FAQS;
 
   return (
     <section id="faq" className="py-14 sm:py-20 bg-white border-t border-stone-200/70">
@@ -17,18 +26,18 @@ export const FAQSection: React.FC = () => {
           <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#1F6E43] uppercase block mb-1">
             সাধারণ জিজ্ঞাসাবলী
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926]">
-            সচরাচর জিজ্ঞাসিত প্রশ্ন ও উত্তর
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926] animate-bubble-gum">
+            {product.faqTitle || 'সচরাচর জিজ্ঞাসিত প্রশ্ন ও উত্তর'}
           </h2>
           <p className="text-stone-600 text-sm sm:text-base mt-2">
-            পণ্য, ডেলিভারি এবং ব্যবহার নিয়ে আপনার মনের সাধারণ প্রশ্নগুলোর উত্তর
+            {product.faqSubtitle || 'পণ্য, ডেলিভারি এবং ব্যবহার নিয়ে আপনার মনের সাধারণ প্রশ্নগুলোর উত্তর।'}
           </p>
           <div className="w-16 h-1 bg-[#1F6E43] mx-auto mt-3 rounded-full"></div>
         </div>
 
         {/* Accordion */}
         <div className="space-y-3.5">
-          {DEFAULT_FAQS.map((faq, idx) => {
+          {faqList.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
               <div

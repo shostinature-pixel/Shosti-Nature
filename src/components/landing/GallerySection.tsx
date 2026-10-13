@@ -46,8 +46,8 @@ export const GallerySection: React.FC<Props> = ({ product }) => {
           <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#1F6E43] uppercase block mb-1">
             পণ্য প্রদর্শনী
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926]">
-            {product.name}ের আসল ছবি ও মোড়ক
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926] animate-bubble-gum">
+            {product.name} এর আসল ছবি ও মোড়ক
           </h2>
           <p className="text-stone-600 text-sm sm:text-base mt-2">
             আমরা যেমন দেখাই, ঠিক তেমনই আসল এবং পরিচ্ছন্ন মোড়কে আপনার কাছে পৌঁছে দেব

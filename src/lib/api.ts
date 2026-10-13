@@ -367,6 +367,18 @@ export const api = {
       usageInstructions?: string;
       storageInstructions?: string;
       warningNotice?: string;
+      aboutTitle?: string;
+      aboutDesc1?: string;
+      aboutDesc2?: string;
+      benefitsTitle?: string;
+      benefitsSubtitle?: string;
+      benefitsList?: any[];
+      usageTitle?: string;
+      usageSubtitle?: string;
+      usageSteps?: any[];
+      faqTitle?: string;
+      faqSubtitle?: string;
+      faqList?: any[];
       deliveryInsideDhaka?: number;
       deliveryOutsideDhaka?: number;
       announcementText?: string;
@@ -413,6 +425,18 @@ export const api = {
       if (payload.usageInstructions !== undefined) product.usageInstructions = payload.usageInstructions;
       if (payload.storageInstructions !== undefined) product.storageInstructions = payload.storageInstructions;
       if (payload.warningNotice !== undefined) product.warningNotice = payload.warningNotice;
+      if (payload.aboutTitle !== undefined) product.aboutTitle = payload.aboutTitle;
+      if (payload.aboutDesc1 !== undefined) product.aboutDesc1 = payload.aboutDesc1;
+      if (payload.aboutDesc2 !== undefined) product.aboutDesc2 = payload.aboutDesc2;
+      if (payload.benefitsTitle !== undefined) product.benefitsTitle = payload.benefitsTitle;
+      if (payload.benefitsSubtitle !== undefined) product.benefitsSubtitle = payload.benefitsSubtitle;
+      if (payload.benefitsList !== undefined) product.benefitsList = payload.benefitsList;
+      if (payload.usageTitle !== undefined) product.usageTitle = payload.usageTitle;
+      if (payload.usageSubtitle !== undefined) product.usageSubtitle = payload.usageSubtitle;
+      if (payload.usageSteps !== undefined) product.usageSteps = payload.usageSteps;
+      if (payload.faqTitle !== undefined) product.faqTitle = payload.faqTitle;
+      if (payload.faqSubtitle !== undefined) product.faqSubtitle = payload.faqSubtitle;
+      if (payload.faqList !== undefined) product.faqList = payload.faqList;
 
       if (payload.ingredients !== undefined) {
         if (Array.isArray(payload.ingredients)) {

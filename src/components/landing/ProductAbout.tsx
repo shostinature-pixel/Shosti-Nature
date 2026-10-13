@@ -16,8 +16,8 @@ export const ProductAbout: React.FC<Props> = ({ product }) => {
           <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#1F6E43] uppercase block mb-1">
             প্রকৃতির খাঁটি উপাদান
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926]">
-            মেথি মিক্স (Methi Mix) কী এবং কেন এটি বিশেষ?
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926] animate-bubble-gum">
+            {product.aboutTitle || `${product.name} কী এবং কেন এটি বিশেষ?`}
           </h2>
           <div className="w-16 h-1 bg-[#1F6E43] mx-auto mt-3 rounded-full"></div>
         </div>
@@ -27,10 +27,10 @@ export const ProductAbout: React.FC<Props> = ({ product }) => {
           {/* Detailed Narrative */}
           <div className="space-y-5 text-stone-700 leading-relaxed">
             <p className="text-base sm:text-lg">
-              <strong className="text-[#133926]">Shosti Nature মেথি মিক্স</strong> হলো শতাব্দীপ্রাচীন ভারতীয় উপমহাদেশীয় ভেষজ ঐতিহ্য এবং আধুনিক স্বাস্থ্য সচেতনতার এক মেলবন্ধন। মেথি (Fenugreek) প্রাকৃতিকভাবেই খাদ্যনালী ও মেটাবলিজমের সুরক্ষায় অনন্য এক উপাদান হিসেবে স্বীকৃত।
+              <strong className="text-[#133926]">Shosti Nature {product.name}</strong> হলো {product.aboutDesc1 || 'শতাব্দীপ্রাচীন ভারতীয় উপমহাদেশীয় ভেষজ ঐতিহ্য এবং আধুনিক স্বাস্থ্য সচেতনতার এক মেলবন্ধন।'}
             </p>
             <p className="text-stone-600">
-              বাজারে সাধারণ মেথির দানা খাওয়ার ক্ষেত্রে যে তিতা স্বাদ বা হজমের অসুবিধা দেখা যায়, আমাদের এই বিশেষ মিক্সে তা পরিশোধিত অনুপাত ও মৃদু ভেষজ উপাদানের সমন্বয়ে সহজে গ্রহণোপযোগী করা হয়েছে। কোনো ক্ষতিকর কেমিক্যাল বা কৃত্রিম ফ্লেভার ছাড়া এটি সরাসরি প্রাকৃতিকভাবে প্যাকেজিং করা।
+              {product.aboutDesc2 || 'বাজারে সাধারণ ভেষজ উপাদান গ্রহণের ক্ষেত্রে যে অসুবিধা দেখা যায়, আমাদের এই বিশেষ মিক্সে তা পরিশোধিত অনুপাত ও মৃদু ভেষজ উপাদানের সমন্বয়ে সহজে গ্রহণোপযোগী করা হয়েছে।'}
             </p>
 
             {/* Ingredients List */}

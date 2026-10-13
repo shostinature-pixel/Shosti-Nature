@@ -55,8 +55,23 @@ export const AdminDashboard: React.FC<Props> = ({
     }
   };
 
+  const fetchDataQuietly = async () => {
+    const res = await api.getAdminDashboard(token);
+    if (res.success) {
+      if (res.stats) setStats(res.stats);
+      if (res.orders) setOrders(res.orders);
+      if (res.product) setProduct(res.product);
+      if (res.settings) setSettings(res.settings);
+      if (res.isBackendConnected !== undefined) setIsBackendConnected(res.isBackendConnected);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    const interval = setInterval(() => {
+      fetchDataQuietly();
+    }, 6000);
+    return () => clearInterval(interval);
   }, [token]);
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {

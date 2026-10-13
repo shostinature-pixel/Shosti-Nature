@@ -32,7 +32,7 @@ export const Footer: React.FC<Props> = ({
                   (e.target as HTMLImageElement).src = '/images/logo.jpg';
                 }}
               />
-              <span className="text-xl font-bold text-white tracking-wide">
+              <span className="text-xl font-extrabold text-white tracking-wide animate-bubble-gum inline-block">
                 {settings.storeName}
               </span>
             </div>

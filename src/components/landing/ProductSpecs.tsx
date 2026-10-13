@@ -26,8 +26,8 @@ export const ProductSpecs: React.FC<Props> = ({ product }) => {
           <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#1F6E43] uppercase block mb-1">
             টেকনিক্যাল স্পেসিফিকেশন
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#133926]">
-            মেথি মিক্সের সম্পূর্ণ বিবরণ ও তথ্যাবলি
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#133926] animate-bubble-gum">
+            {product.name} এর সম্পূর্ণ বিবরণ ও তথ্যাবলি
           </h2>
           <div className="w-16 h-1 bg-[#1F6E43] mx-auto mt-3 rounded-full"></div>
         </div>

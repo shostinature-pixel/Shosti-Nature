@@ -30,7 +30,7 @@ export const StickyMobileBar: React.FC<Props> = ({ product, onOrderClick }) => {
         <button
           onClick={onOrderClick}
           disabled={!product.inStock}
-          className="flex-1 py-3 px-4 rounded-xl bg-[#1F6E43] hover:bg-[#133926] disabled:bg-stone-300 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all"
+          className="flex-1 py-3 px-4 rounded-xl bg-[#1F6E43] hover:bg-[#133926] disabled:bg-stone-300 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all animate-order-bounce"
         >
           <ShoppingBag className="w-4 h-4" />
           <span>{product.inStock ? 'অর্ডার করুন' : 'স্টক শেষ'}</span>

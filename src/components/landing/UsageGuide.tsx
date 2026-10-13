@@ -7,7 +7,7 @@ interface Props {
 }
 
 export const UsageGuide: React.FC<Props> = ({ product }) => {
-  const steps = [
+  const defaultSteps = [
     {
       step: '০১',
       title: 'পানি প্রস্তুত করুন',
@@ -28,6 +28,15 @@ export const UsageGuide: React.FC<Props> = ({ product }) => {
     }
   ];
 
+  const stepsList = (product.usageSteps && product.usageSteps.length > 0)
+    ? product.usageSteps.map((st, i) => ({
+        step: st.step || `০${i + 1}`,
+        title: st.title,
+        desc: st.desc,
+        icon: defaultSteps[i % defaultSteps.length].icon
+      }))
+    : defaultSteps;
+
   return (
     <section id="usage" className="py-14 sm:py-20 bg-white border-t border-stone-200/70">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -36,18 +45,18 @@ export const UsageGuide: React.FC<Props> = ({ product }) => {
           <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#1F6E43] uppercase block mb-1">
             সঠিক সেবন পদ্ধতি
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926]">
-            মেথি মিক্স কীভাবে ও কখন খাবেন?
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926] animate-bubble-gum">
+            {product.usageTitle || `${product.name} কীভাবে ও কখন খাবেন?`}
           </h2>
           <p className="text-stone-600 text-sm sm:text-base mt-2">
-            সর্বোচ্চ সুফল পেতে প্রস্তুতকারকের নির্দেশিত ৩টি সহজ ধাপ অনুসরণ করুন
+            {product.usageSubtitle || 'সর্বোচ্চ সুফল পেতে প্রস্তুতকারকের নির্দেশিত সহজ ধাপগুলো অনুসরণ করুন।'}
           </p>
           <div className="w-16 h-1 bg-[#1F6E43] mx-auto mt-3 rounded-full"></div>
         </div>
 
         {/* Steps Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
-          {steps.map((st, idx) => {
+          {stepsList.map((st, idx) => {
             const Icon = st.icon;
             return (
               <div

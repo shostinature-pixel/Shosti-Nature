@@ -6,6 +6,23 @@ export type OrderStatus =
   | 'delivered'    // ডেলিভারি সম্পন্ন
   | 'cancelled';   // বাতিল
 
+export interface BenefitItem {
+  title: string;
+  description: string;
+  icon?: string;
+}
+
+export interface UsageStepItem {
+  step: string;
+  title: string;
+  desc: string;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface ProductItem {
   id: string;
   name: string;
@@ -25,6 +42,20 @@ export interface ProductItem {
   usageInstructions: string;
   warningNotice: string;
   disclaimer: string;
+
+  // Universal CMS Section Content Fields
+  aboutTitle?: string;
+  aboutDesc1?: string;
+  aboutDesc2?: string;
+  benefitsTitle?: string;
+  benefitsSubtitle?: string;
+  benefitsList?: BenefitItem[];
+  usageTitle?: string;
+  usageSubtitle?: string;
+  usageSteps?: UsageStepItem[];
+  faqTitle?: string;
+  faqSubtitle?: string;
+  faqList?: FaqItem[];
 }
 
 export interface StoreSettings {
@@ -52,6 +83,17 @@ export interface OrderItem {
   totalPrice: number;
 }
 
+export interface OrderSubmissionPayload {
+  customerName: string;
+  customerPhone: string;
+  deliveryAddress: string;
+  city: 'inside_dhaka' | 'outside_dhaka';
+  district?: string;
+  quantity: number;
+  notes?: string;
+  idempotencyKey?: string;
+}
+
 export interface Order {
   id: string;
   orderNumber: string; // e.g. SN-20261010-8492
@@ -70,17 +112,6 @@ export interface Order {
   notes?: string;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface OrderSubmissionPayload {
-  customerName: string;
-  customerPhone: string;
-  deliveryAddress: string;
-  city: 'inside_dhaka' | 'outside_dhaka';
-  district?: string;
-  quantity: number;
-  notes?: string;
-  idempotencyKey?: string;
 }
 
 export interface AdminStats {
