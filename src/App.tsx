@@ -87,8 +87,6 @@ export default function App() {
   const handleAdminLogout = () => {
     setAdminToken(null);
     localStorage.removeItem('shosti_admin_token');
-    setIsAdminView(false);
-    window.location.hash = '';
   };
 
   const handleProductUpdatedInAdmin = (newProd: ProductItem, newSet: StoreSettings) => {

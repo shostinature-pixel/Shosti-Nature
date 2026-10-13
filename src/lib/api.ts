@@ -190,20 +190,102 @@ export const api = {
   // Admin: Login
   async adminLogin(password: string): Promise<{ success: boolean; token?: string; error?: string }> {
     try {
+      const cleanPassword = typeof password === 'string' ? password.trim() : '';
       const res = await fetch(`${BASE_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ password: cleanPassword })
       });
       const contentType = res.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const data = await res.json();
         if (res.ok) return { success: true, token: data.token };
-        return { success: false, error: data.error || 'ভুল পাসওয়ার্ড! শুধুমাত্র অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।' };
+        return { success: false, error: data.error || 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিয়ে আবার চেষ্টা করুন।' };
       }
       return { success: false, error: 'সার্ভার থেকে অবৈধ রেসপন্স পাওয়া গেছে।' };
     } catch {
       return { success: false, error: 'সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।' };
+    }
+  },
+
+  // Admin: Request Forgot Password OTP
+  async requestPasswordOtp(email?: string): Promise<{
+    success: boolean;
+    otp?: string;
+    email?: string;
+    message?: string;
+    error?: string;
+  }> {
+    try {
+      const res = await fetch(`${BASE_URL}/api/admin/forgot-password/request-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        return {
+          success: true,
+          otp: data.otp,
+          email: data.email,
+          message: data.message
+        };
+      }
+      return { success: false, error: data.error || 'ভেরিফিকেশন কোড পাঠানো সম্ভব হয়নি।' };
+    } catch {
+      return { success: false, error: 'সার্ভারের সাথে যোগাযোগ করা সম্ভব হয়নি।' };
+    }
+  },
+
+  // Admin: Reset Password with OTP or Master Key
+  async resetAdminPassword(payload: {
+    email?: string;
+    otp?: string;
+    masterKey?: string;
+    newPassword: string;
+  }): Promise<{ success: boolean; token?: string; message?: string; error?: string }> {
+    try {
+      const res = await fetch(`${BASE_URL}/api/admin/forgot-password/reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        return { success: true, token: data.token, message: data.message };
+      }
+      return { success: false, error: data.error || 'পাসওয়ার্ড রিসেট করা সম্ভব হয়নি।' };
+    } catch {
+      return { success: false, error: 'সার্ভারের সাথে যোগাযোগ করা সম্ভব হয়নি।' };
+    }
+  },
+
+  // Admin: Emergency Reset to Default Password (shosti2026)
+  async resetPasswordToDefault(): Promise<{
+    success: boolean;
+    token?: string;
+    defaultPassword?: string;
+    message?: string;
+    error?: string;
+  }> {
+    try {
+      const res = await fetch(`${BASE_URL}/api/admin/forgot-password/reset-default`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        return {
+          success: true,
+          token: data.token,
+          defaultPassword: data.defaultPassword,
+          message: data.message
+        };
+      }
+      return { success: false, error: data.error || 'ডিফল্ট পাসওয়ার্ড রিসেট করা সম্ভব হয়নি।' };
+    } catch {
+      return { success: false, error: 'সার্ভারের সাথে যোগাযোগ করা সম্ভব হয়নি।' };
     }
   },
 
