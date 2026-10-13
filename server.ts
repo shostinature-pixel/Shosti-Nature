@@ -308,15 +308,19 @@ async function startServer() {
     const { password } = req.body;
     const store = loadStore();
 
-    const expectedPassword = process.env.ADMIN_PASSWORD || store.adminPassword || 'shosti2026';
+    const expectedPassword = store.adminPassword || process.env.ADMIN_PASSWORD || 'shosti2026';
     if (!password || password !== expectedPassword) {
-      return res.status(401).json({ error: 'ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।' });
+      return res.status(401).json({ error: 'ভুল পাসওয়ার্ড! শুধুমাত্র অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।' });
     }
 
     const token = `token_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
     activeTokens.add(token);
     if (!(store as any).adminTokens) (store as any).adminTokens = [];
     (store as any).adminTokens.push(token);
+    // Keep max 25 recent tokens
+    if ((store as any).adminTokens.length > 25) {
+      (store as any).adminTokens = (store as any).adminTokens.slice(-25);
+    }
     saveStore(store);
 
     res.json({
@@ -325,21 +329,69 @@ async function startServer() {
     });
   });
 
-  // Middleware: Auth check
+  // Middleware: Strict Admin Auth check
   const requireAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'প্রবেশাধিকার সংরক্ষিত' });
+      return res.status(401).json({ error: 'অননুমোদিত প্রবেশ! প্রবেশাধিকার সম্পূর্ণ সংরক্ষিত।' });
     }
     const token = authHeader.split(' ')[1];
     const store = loadStore();
     const storedTokens = (store as any).adminTokens || [];
-    if (activeTokens.has(token) || storedTokens.includes(token) || token.startsWith('token_') || token.startsWith('local_token_')) {
+    
+    // Strict verification: Token MUST be in activeTokens or stored in store.json
+    if (activeTokens.has(token) || storedTokens.includes(token)) {
       activeTokens.add(token);
       return next();
     }
-    return res.status(401).json({ error: 'সেশন মেয়াদোত্তীর্ণ হয়েছে। অনুগ্রহ করে আবার লগইন করুন।' });
+    
+    return res.status(401).json({ error: 'সেশন অবৈধ বা মেয়াদোত্তীর্ণ হয়েছে। অনুগ্রহ করে আবার লগইন করুন।' });
   };
+
+  // 4.5 Admin API: Change Password
+  app.post('/api/admin/change-password', requireAdmin, (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const store = loadStore();
+      const currentActivePassword = store.adminPassword || process.env.ADMIN_PASSWORD || 'shosti2026';
+
+      if (!currentPassword) {
+        return res.status(400).json({ error: 'বর্তমান পাসওয়ার্ড প্রদান করুন।' });
+      }
+
+      if (currentPassword !== currentActivePassword) {
+        return res.status(400).json({ error: 'বর্তমান পাসওয়ার্ডটি সঠিক নয়! অনুগ্রহ করে সঠিক পাসওয়ার্ড দিন।' });
+      }
+
+      if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length < 4) {
+        return res.status(400).json({ error: 'নতুন পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।' });
+      }
+
+      const trimmedNewPass = newPassword.trim();
+      store.adminPassword = trimmedNewPass;
+
+      // Keep current token active
+      const authHeader = req.headers.authorization;
+      const currentToken = authHeader?.split(' ')[1] || '';
+      
+      const newTokens = currentToken ? [currentToken] : [];
+      (store as any).adminTokens = newTokens;
+      activeTokens.clear();
+      if (currentToken) activeTokens.add(currentToken);
+
+      saveStore(store);
+
+      console.log(`[Admin] Password successfully changed at ${new Date().toISOString()}`);
+
+      res.json({
+        success: true,
+        message: 'অ্যাডমিন পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।'
+      });
+    } catch (err: any) {
+      console.error('[Admin] Error changing password:', err);
+      res.status(500).json({ error: 'পাসওয়ার্ড পরিবর্তন করতে ত্রুটি হয়েছে।' });
+    }
+  });
 
   // 5. Admin API: Dashboard stats & order list
   app.get('/api/admin/dashboard', requireAdmin, (req, res) => {

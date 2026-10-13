@@ -199,15 +199,11 @@ export const api = {
       if (contentType && contentType.includes('application/json')) {
         const data = await res.json();
         if (res.ok) return { success: true, token: data.token };
-        return { success: false, error: data.error };
+        return { success: false, error: data.error || 'ভুল পাসওয়ার্ড! শুধুমাত্র অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।' };
       }
-      throw new Error('Fallback to local authentication');
+      return { success: false, error: 'সার্ভার থেকে অবৈধ রেসপন্স পাওয়া গেছে।' };
     } catch {
-      // Local client auth
-      if (password === 'shosti2026' || password === 'admin') {
-        return { success: true, token: `local_token_${Date.now()}` };
-      }
-      return { success: false, error: 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।' };
+      return { success: false, error: 'সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।' };
     }
   },
 
@@ -235,10 +231,10 @@ export const api = {
       const res = await fetch(`${BASE_URL}/api/admin/dashboard`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (res.status === 401) {
+      if (res.status === 401 || res.status === 403) {
         return {
           success: false,
-          error: 'সেশন মেয়াদোত্তীর্ণ হয়েছে। অনুগ্রহ করে আবার লগইন করুন।'
+          error: 'অননুমোদিত প্রবেশ! আপনার লগইন মেয়াদোত্তীর্ণ হয়েছে বা অনুমতি নেই।'
         };
       }
       const contentType = res.headers.get('content-type');
@@ -346,6 +342,32 @@ export const api = {
       const filtered = orders.filter((o) => o.id !== orderId && o.orderNumber !== orderId);
       saveLocalOrders(filtered);
       return { success: true };
+    }
+  },
+
+  // Admin: Change password
+  async changeAdminPassword(
+    token: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const res = await fetch(`${BASE_URL}/api/admin/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        return { success: true, message: data.message };
+      }
+      return { success: false, error: data.error || 'পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।' };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '';
+      return { success: false, error: msg || 'সার্ভারের সাথে যোগাযোগ করা সম্ভব হয়নি।' };
     }
   },
 

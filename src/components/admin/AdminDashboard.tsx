@@ -3,6 +3,7 @@ import { ProductItem, StoreSettings, Order, AdminStats, OrderStatus } from '../.
 import { api } from '../../lib/api';
 import { AdminOrderList } from './AdminOrderList';
 import { AdminPriceSettings } from './AdminPriceSettings';
+import { AdminSecuritySettings } from './AdminSecuritySettings';
 import {
   Package,
   Clock,
@@ -15,7 +16,8 @@ import {
   ListOrdered,
   Database,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  KeyRound
 } from 'lucide-react';
 
 interface Props {
@@ -37,7 +39,7 @@ export const AdminDashboard: React.FC<Props> = ({
   const [orders, setOrders] = useState<Order[]>([]);
   const [product, setProduct] = useState<ProductItem | null>(null);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
-  const [activeTab, setActiveTab] = useState<'orders' | 'settings' | 'database'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'settings' | 'security' | 'database'>('orders');
 
   const fetchData = async () => {
     setLoading(true);
@@ -50,7 +52,7 @@ export const AdminDashboard: React.FC<Props> = ({
       if (res.product) setProduct(res.product);
       if (res.settings) setSettings(res.settings);
       if (res.isBackendConnected !== undefined) setIsBackendConnected(res.isBackendConnected);
-    } else if (res.error?.includes('সেশন') || res.error?.includes('অনুমোদিত')) {
+    } else {
       onLogout();
     }
   };
@@ -124,7 +126,7 @@ export const AdminDashboard: React.FC<Props> = ({
                 Shosti Nature অ্যাডমিন প্যানেল
               </h1>
               <p className="text-[11px] text-stone-500 font-medium">
-                প্রোডাক্ট: মেথি মিক্স (Methi Mix)
+                প্রোডাক্ট: {product?.name || 'মেথি মিক্স (Methi Mix)'}
               </p>
             </div>
           </div>
@@ -246,7 +248,7 @@ export const AdminDashboard: React.FC<Props> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-stone-200 pb-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-stone-200 pb-3">
           <button
             onClick={() => setActiveTab('orders')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
@@ -272,6 +274,18 @@ export const AdminDashboard: React.FC<Props> = ({
           </button>
 
           <button
+            onClick={() => setActiveTab('security')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+              activeTab === 'security'
+                ? 'bg-[#133926] text-white shadow-xs'
+                : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
+            }`}
+          >
+            <KeyRound className="w-4 h-4 text-emerald-300" />
+            <span>পাসওয়ার্ড পরিবর্তন ও নিরাপত্তা</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('database')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
               activeTab === 'database'
@@ -280,7 +294,7 @@ export const AdminDashboard: React.FC<Props> = ({
             }`}
           >
             <Database className="w-4 h-4" />
-            <span>ডেটাবেস ও নিরাপত্তা</span>
+            <span>সিস্টেম ডেটাবেস</span>
           </button>
         </div>
 
@@ -301,6 +315,10 @@ export const AdminDashboard: React.FC<Props> = ({
             settings={settings}
             onUpdated={handleProductSettingsUpdated}
           />
+        )}
+
+        {activeTab === 'security' && (
+          <AdminSecuritySettings token={token} />
         )}
 
         {activeTab === 'database' && (

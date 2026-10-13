@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, ArrowLeft, AlertCircle, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, AlertCircle, ShieldCheck, Eye, EyeOff, Lock } from 'lucide-react';
 import { api } from '../../lib/api';
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 
 export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) => {
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -54,7 +55,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
             Shosti Nature অ্যাডমিন প্যানেল
           </h2>
           <p className="text-xs sm:text-sm text-stone-500">
-            অর্ডার পরিচালনা ও প্রোডাক্টের মূল্য পরিবর্তনের জন্য লগইন করুন
+            অর্ডার পরিচালনা ও স্টোর ব্যবস্থাপনার জন্য শুধু অনুমোদিত অ্যাডমিন লগইন করুন
           </p>
         </div>
 
@@ -70,16 +71,27 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
             <label className="block text-xs font-bold text-stone-700 mb-1.5">
               অ্যাডমিন পাসওয়ার্ড
             </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="পাসওয়ার্ড লিখুন"
-              className="w-full px-4 py-3 rounded-xl border border-stone-300 text-stone-900 text-sm focus:border-[#1F6E43] focus:ring-2 focus:ring-emerald-500/20 outline-hidden transition-all"
-            />
-            <p className="text-[11px] text-stone-400 mt-1">
-              * সিস্টেম অ্যাডমিন পাসওয়ার্ড: <code className="bg-stone-100 px-1 py-0.5 rounded text-stone-700">shosti2026</code> (এনভায়রনমেন্ট ভেরিয়েবল ADMIN_PASSWORD দিয়ে পরিবর্তনযোগ্য)
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="গোপন পাসওয়ার্ড লিখুন"
+                className="w-full px-4 py-3 pr-11 rounded-xl border border-stone-300 text-stone-900 text-sm focus:border-[#1F6E43] focus:ring-2 focus:ring-emerald-500/20 outline-hidden transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 cursor-pointer"
+                title={showPassword ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            <p className="text-[11px] text-stone-400 mt-1.5 flex items-center gap-1">
+              <Lock className="w-3 h-3 text-stone-400" />
+              <span>অননুমোদিত প্রবেশ সম্পূর্ণ নিষিদ্ধ ও সুরক্ষিত।</span>
             </p>
           </div>
 
