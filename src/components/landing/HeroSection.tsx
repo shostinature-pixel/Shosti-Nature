@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShoppingBag, CheckCircle2, ShieldCheck, Truck, Sparkles } from 'lucide-react';
 import { ProductItem, StoreSettings } from '../../types';
+import { WhatsAppIcon } from '../common/WhatsAppIcon';
 
 interface Props {
   product: ProductItem;
@@ -84,8 +85,9 @@ export const HeroSection: React.FC<Props> = ({ product, settings, onOrderClick }
                   href={`https://wa.me/${settings.whatsapp}?text=${encodeURIComponent('আসসালামু আলাইকুম, আমি Shosti Nature মেথি মিক্স অর্ডার করতে চাই।')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] border border-[#25D366]/30 py-3.5 px-5 rounded-xl font-semibold text-sm transition-colors"
+                  className="inline-flex items-center justify-center gap-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 px-6 rounded-xl font-bold text-sm sm:text-base shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                 >
+                  <WhatsAppIcon className="w-5 h-5 text-white fill-white shrink-0" />
                   <span>হোয়াটসঅ্যাপে অর্ডার</span>
                 </a>
               </div>

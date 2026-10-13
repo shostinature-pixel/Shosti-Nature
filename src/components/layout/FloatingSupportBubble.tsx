@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Phone, MessageCircle, X, Headphones, Sparkles } from 'lucide-react';
+import { Phone, X, Headphones, Sparkles } from 'lucide-react';
 import { StoreSettings } from '../../types';
+import { WhatsAppIcon } from '../common/WhatsAppIcon';
 
 interface Props {
   settings: StoreSettings;
@@ -51,9 +52,9 @@ export const FloatingSupportBubble: React.FC<Props> = ({ settings }) => {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-3 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-xs transition-all hover:shadow-md cursor-pointer group"
+              className="w-full py-3 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all cursor-pointer group"
             >
-              <MessageCircle className="w-5 h-5 text-white transition-transform group-hover:scale-110" />
+              <WhatsAppIcon className="w-5 h-5 text-white fill-white transition-transform group-hover:scale-110" />
               <span>WhatsApp-এ মেসেজ দিন</span>
             </a>
 
@@ -96,7 +97,7 @@ export const FloatingSupportBubble: React.FC<Props> = ({ settings }) => {
             <X className="w-6 h-6" />
           ) : (
             <div className="relative flex items-center justify-center">
-              <MessageCircle className="w-7 h-7 text-white fill-white" />
+              <WhatsAppIcon className="w-7 h-7 text-white fill-white" />
               {/* Online Ping Dot */}
               <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-200 rounded-full border-2 border-[#25D366] animate-ping"></span>
               <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-100 rounded-full border-2 border-[#25D366]"></span>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle2, Copy, X, Phone, Check } from 'lucide-react';
 import { Order, StoreSettings } from '../../types';
+import { WhatsAppIcon } from '../common/WhatsAppIcon';
 
 interface Props {
   order: Order | null;
@@ -106,8 +107,9 @@ export const OrderSuccessModal: React.FC<Props> = ({ order, settings, onClose })
             href={`https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-sm text-center shadow-xs transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-sm text-center shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
+            <WhatsAppIcon className="w-5 h-5 text-white fill-white shrink-0" />
             <span>WhatsApp-এ বিস্তারিত পাঠান</span>
           </a>
 

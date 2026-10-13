@@ -1,6 +1,7 @@
 import React from 'react';
 import { StoreSettings } from '../../types';
 import { Phone, Mail, MapPin, Sparkles, ShieldCheck } from 'lucide-react';
+import { WhatsAppIcon } from '../common/WhatsAppIcon';
 
 interface Props {
   settings: StoreSettings;
@@ -156,8 +157,9 @@ export const Footer: React.FC<Props> = ({
                 href={`https://wa.me/${settings.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-emerald-300 px-3 py-1.5 rounded-lg text-xs font-semibold border border-emerald-500/30 transition-colors"
+                className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer"
               >
+                <WhatsAppIcon className="w-4 h-4 text-white fill-white shrink-0" />
                 <span>WhatsApp-এ সরাসরি চ্যাট</span>
               </a>
             </div>
