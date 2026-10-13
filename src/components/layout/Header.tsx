@@ -83,10 +83,11 @@ export const Header: React.FC<Props> = ({
 
           <button
             onClick={onAdminClick}
-            className="p-2 text-stone-500 hover:text-[#133926] rounded-lg hover:bg-stone-100 transition-colors"
-            title="অ্যাডমিন প্যানেল"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#133926] bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80 rounded-lg transition-all cursor-pointer shadow-2xs"
+            title="অ্যাডমিন প্যানেল লগইন"
           >
-            <Lock className="w-4 h-4" />
+            <Lock className="w-3.5 h-3.5 text-[#1F6E43]" />
+            <span>অ্যাডমিন</span>
           </button>
 
           <button
@@ -131,6 +132,16 @@ export const Header: React.FC<Props> = ({
             >
               <Search className="w-4 h-4 text-stone-500" />
               <span>আপনার অর্ডার ট্র্যাক করুন</span>
+            </button>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onAdminClick();
+              }}
+              className="flex items-center gap-2 text-left py-2 px-3 text-[#133926] bg-emerald-100/70 border border-emerald-300 rounded-md font-bold text-base"
+            >
+              <Lock className="w-4 h-4 text-[#1F6E43]" />
+              <span>অ্যাডমিন কন্ট্রোল প্যানেল</span>
             </button>
           </div>
 

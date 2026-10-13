@@ -151,10 +151,6 @@ export const AdminSecuritySettings: React.FC<Props> = ({ token }) => {
 
   // 4. Quick Reset to Default Password (shosti2026)
   const handleResetToDefault = async () => {
-    if (!window.confirm('আপনি কি নিশ্চিত যে পাসওয়ার্ড রিসেট করে ডিফল্ট (shosti2026) এ ফিরিয়ে নিতে চান?')) {
-      return;
-    }
-
     setLoading(true);
     setOtpSuccessMsg('');
     setOtpErrorMsg('');

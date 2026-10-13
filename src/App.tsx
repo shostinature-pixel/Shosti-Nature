@@ -61,10 +61,22 @@ export default function App() {
     };
     initData();
 
-    // Check if URL hash is #admin
-    if (window.location.hash === '#admin') {
-      setIsAdminView(true);
-    }
+    // Admin view routing listener (#admin or /admin)
+    const checkAdminRoute = () => {
+      const isHashAdmin = window.location.hash === '#admin';
+      const isPathAdmin = window.location.pathname.startsWith('/admin');
+      if (isHashAdmin || isPathAdmin) {
+        setIsAdminView(true);
+      }
+    };
+    checkAdminRoute();
+    window.addEventListener('hashchange', checkAdminRoute);
+    window.addEventListener('popstate', checkAdminRoute);
+
+    return () => {
+      window.removeEventListener('hashchange', checkAdminRoute);
+      window.removeEventListener('popstate', checkAdminRoute);
+    };
   }, []);
 
   const handleScrollToOrder = () => {
