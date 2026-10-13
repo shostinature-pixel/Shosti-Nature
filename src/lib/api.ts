@@ -453,6 +453,31 @@ export const api = {
     }
   },
 
+  // Admin: Change password with Gmail OTP
+  async changePasswordWithOtp(
+    token: string,
+    payload: { otp: string; newPassword: string; email?: string }
+  ): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const res = await fetch(`${BASE_URL}/api/admin/change-password-with-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        return { success: true, message: data.message };
+      }
+      return { success: false, error: data.error || 'পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।' };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '';
+      return { success: false, error: msg || 'সার্ভারের সাথে যোগাযোগ করা সম্ভব হয়নি।' };
+    }
+  },
+
   // Admin: Update store settings & product
   async updateStoreSettings(
     token: string,

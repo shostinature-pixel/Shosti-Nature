@@ -11,9 +11,9 @@ import {
   CheckCircle,
   Mail,
   Sparkles,
-  HelpCircle,
-  Copy,
-  Check
+  Send,
+  Check,
+  ArrowRight
 } from 'lucide-react';
 import { api } from '../../lib/api';
 
@@ -23,11 +23,11 @@ interface Props {
 }
 
 export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) => {
-  const [password, setPassword] = useState('');
+  // Pre-fill default password 'shosti2026' to eliminate friction
+  const [password, setPassword] = useState('shosti2026');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [copiedHint, setCopiedHint] = useState(false);
 
   // Forgot Password Mode
   const [isForgotMode, setIsForgotMode] = useState(false);
@@ -44,15 +44,9 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
   const [forgotError, setForgotError] = useState('');
   const [forgotSuccess, setForgotSuccess] = useState('');
 
-  // Auto-fill default password helper
-  const handleAutoFillDefault = () => {
-    setPassword('shosti2026');
-    setCopiedHint(true);
-    setTimeout(() => setCopiedHint(false), 2000);
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Standard Login
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const cleanPass = password.trim();
     if (!cleanPass) {
       setError('অনুগ্রহ করে পাসওয়ার্ডটি লিখুন।');
@@ -75,6 +69,22 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
     }
   };
 
+  // Direct 1-Click Login with default password
+  const handleDirectDefaultLogin = async () => {
+    setPassword('shosti2026');
+    setLoading(true);
+    setError('');
+
+    const res = await api.adminLogin('shosti2026');
+    setLoading(false);
+
+    if (res.success && res.token) {
+      onLoginSuccess(res.token);
+    } else {
+      setError(res.error || 'লগইন ব্যর্থ হয়েছে।');
+    }
+  };
+
   // Instant Reset to Default (shosti2026)
   const handleResetToDefault = async () => {
     setForgotLoading(true);
@@ -94,7 +104,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
     }
   };
 
-  // Request OTP
+  // Request OTP to Gmail
   const handleRequestOtp = async () => {
     setForgotLoading(true);
     setForgotError('');
@@ -106,7 +116,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
     if (res.success && res.otp) {
       setGeneratedOtp(res.otp);
       setOtpCode(res.otp); // prefill for ultimate convenience
-      setForgotSuccess('৬ ডিজিটের ভেরিফিকেশন কোড তৈরি হয়েছে!');
+      setForgotSuccess('আপনার জিমেইলে ভেরিফিকেশন কোড তৈরি হয়েছে!');
     } else {
       setForgotError(res.error || 'কোড তৈরি করতে সমস্যা হয়েছে।');
     }
@@ -193,8 +203,8 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
           </h2>
           <p className="text-xs sm:text-sm text-stone-500">
             {isForgotMode
-              ? 'নিরাপদে আপনার অ্যাডমিন পাসওয়ার্ড রিসেট বা রিকভার করুন'
-              : 'অর্ডার পরিচালনা ও স্টোর ব্যবস্থাপনার জন্য অনুমোদিত অ্যাডমিন লগইন'}
+              ? 'জিমেইলে কোড পাঠিয়ে বা ১ ক্লিকে পাসওয়ার্ড রিসেট করুন'
+              : 'অর্ডার পরিচালনা ও স্টোর ব্যবস্থাপনায় প্রবেশ করুন'}
           </p>
         </div>
 
@@ -202,31 +212,26 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
           /* ================= STANDARD LOGIN VIEW ================= */
           <div className="space-y-4">
             
-            {/* Quick Helper Badge */}
-            <div className="p-3 bg-emerald-50/80 border border-emerald-200/90 rounded-2xl flex items-center justify-between gap-2 text-xs text-emerald-950">
+            {/* Direct Login Card */}
+            <div className="p-4 bg-emerald-50 border-2 border-emerald-500/40 rounded-2xl space-y-2.5">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>
-                  ডিফল্ট পাসওয়ার্ড: <strong className="font-mono text-emerald-900 font-extrabold">shosti2026</strong>
+                <span className="text-xs font-bold text-emerald-950">
+                  আপনার লগইন পাসওয়ার্ড: <strong className="font-mono text-sm text-[#133926] bg-white px-2 py-0.5 rounded-md border border-emerald-300">shosti2026</strong>
                 </span>
               </div>
+              <p className="text-[11px] text-emerald-800 leading-relaxed">
+                পাসওয়ার্ডটি স্বয়ংক্রিয়ভাবে ইনপুটে দেওয়া আছে। ড্যাশবোর্ডে গিয়ে আপনি জিমেইল কোডের মাধ্যমে যেকোনো সময় ইচ্ছেমত পাসওয়ার্ড পরিবর্তন করতে পারবেন।
+              </p>
               <button
                 type="button"
-                onClick={handleAutoFillDefault}
-                className="px-2.5 py-1 bg-white hover:bg-emerald-100 text-[#1F6E43] font-bold text-[11px] rounded-lg border border-emerald-300 shadow-2xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
-                title="পাসওয়ার্ড ইনপুটে বসান"
+                onClick={handleDirectDefaultLogin}
+                disabled={loading}
+                className="w-full py-3 bg-[#1F6E43] hover:bg-[#133926] disabled:bg-stone-400 text-white font-black text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                {copiedHint ? (
-                  <>
-                    <Check className="w-3 h-3 text-emerald-600" />
-                    <span>বসানো হয়েছে</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3 h-3" />
-                    <span>বসিয়ে দিন</span>
-                  </>
-                )}
+                <ShieldCheck className="w-4 h-4" />
+                <span>{loading ? 'প্রবেশ করা হচ্ছে...' : '১ ক্লিকে সরাসরি ড্যাশবোর্ডে প্রবেশ করুন'}</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
 
@@ -246,16 +251,17 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                     }}
                     className="text-xs font-bold text-rose-900 underline hover:text-rose-700 cursor-pointer"
                   >
-                    পাসওয়ার্ড ভুলে গেছেন? এক ক্লিকে রিসেট করুন →
+                    পাসওয়ার্ড ভুলে গেছেন? জিমেইল কোড দিয়ে রিসেট করুন →
                   </button>
                 </div>
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            {/* Manual Form (for custom changed passwords) */}
+            <form onSubmit={handleLogin} className="space-y-4 pt-1">
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                  অ্যাডমিন পাসওয়ার্ড
+                  অথবা নতুন কোনো পাসওয়ার্ড সেট করে থাকলে তা লিখুন
                 </label>
                 <div className="relative">
                   <input
@@ -263,7 +269,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="গোপন পাসওয়ার্ড লিখুন (যেমন: shosti2026)"
+                    placeholder="পাসওয়ার্ড লিখুন"
                     className="w-full px-4 py-3 pr-11 rounded-xl border border-stone-300 text-stone-900 text-sm focus:border-[#1F6E43] focus:ring-2 focus:ring-emerald-500/20 outline-hidden transition-all"
                   />
                   <button
@@ -279,7 +285,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                 <div className="flex items-center justify-between mt-2 text-xs">
                   <span className="text-[11px] text-stone-400 flex items-center gap-1">
                     <Lock className="w-3 h-3 text-stone-400" />
-                    <span>এনক্রিপ্টকৃত সুরক্ষা</span>
+                    <span>এনক্রিপ্টকৃত নিরাপত্তা</span>
                   </span>
 
                   {/* Forgot Password Trigger Button */}
@@ -300,16 +306,9 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-4 bg-[#1F6E43] hover:bg-[#133926] disabled:bg-stone-400 text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 px-4 bg-stone-800 hover:bg-stone-900 disabled:bg-stone-400 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                {loading ? (
-                  <span>যাচাই করা হচ্ছে...</span>
-                ) : (
-                  <>
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>লগইন করুন</span>
-                  </>
-                )}
+                {loading ? 'যাচাই করা হচ্ছে...' : 'লগইন করুন'}
               </button>
             </form>
 
@@ -363,18 +362,18 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                   </button>
                 </div>
 
-                {/* Method 2: Custom New Password with Verification */}
+                {/* Method 2: Gmail Verification Code */}
                 <div className="p-5 rounded-2xl border border-stone-200 bg-white hover:border-stone-300 transition-all space-y-3">
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-xl bg-stone-100 text-stone-700 flex items-center justify-center shrink-0">
-                      <KeyRound className="w-5 h-5" />
+                      <Mail className="w-5 h-5" />
                     </div>
                     <div className="space-y-1">
                       <h4 className="font-extrabold text-stone-900 text-sm">
-                        ভেরিফিকেশন কোড দিয়ে নতুন পাসওয়ার্ড দিন
+                        জিমেইলে কোড পাঠিয়ে নতুন পাসওয়ার্ড দিন
                       </h4>
                       <p className="text-xs text-stone-600 leading-relaxed">
-                        আপনার রেজিস্টার্ড ইমেইল (shostinature@gmail.com)-এর মাধ্যমে তাৎক্ষণিক ভেরিফিকেশন কোড নিয়ে নতুন নিজস্ব পাসওয়ার্ড সেট করুন।
+                        রেজিস্টার্ড জিমেইল (shostinature@gmail.com)-এ ওটিপি কোড নিয়ে নিজের পছন্দমতো নতুন পাসওয়ার্ড সেট করুন।
                       </p>
                     </div>
                   </div>
@@ -387,8 +386,8 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                     }}
                     className="w-full py-2.5 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Mail className="w-4 h-4 text-stone-600" />
-                    <span>নতুন নিজস্ব পাসওয়ার্ড সেট করুন</span>
+                    <Send className="w-4 h-4 text-stone-600" />
+                    <span>জিমেইল কোড দিয়ে নতুন পাসওয়ার্ড সেট করুন</span>
                   </button>
                 </div>
 
@@ -402,14 +401,14 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                   <div className="p-3.5 bg-emerald-50 border border-emerald-300 rounded-2xl space-y-1.5">
                     <div className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
                       <KeyRound className="w-4 h-4 text-emerald-600" />
-                      <span>আপনার রিকভারি কোড প্রস্তুত:</span>
+                      <span>জিমেইলে পাঠানো ভেরিফিকেশন কোড:</span>
                     </div>
                     <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-emerald-200">
                       <span className="font-mono text-lg font-black tracking-widest text-[#1F6E43]">
                         {generatedOtp}
                       </span>
                       <span className="text-[11px] text-emerald-700 font-semibold">
-                        ✓ স্বয়ংক্রিয়ভাবে ইনপুটে বসানো হয়েছে
+                        ✓ ইনপুটে স্বয়ংক্রিয়ভাবে বসানো হয়েছে
                       </span>
                     </div>
                   </div>
@@ -418,14 +417,14 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                 {/* Email Input */}
                 <div>
                   <label className="block text-xs font-bold text-stone-700 mb-1">
-                    রেজিস্টার্ড ইমেইল
+                    রেজিস্টার্ড জিমেইল
                   </label>
                   <input
                     type="email"
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-stone-900 text-xs focus:border-[#1F6E43] outline-hidden"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-stone-900 text-xs focus:border-[#1F6E43] outline-hidden font-mono"
                   />
                 </div>
 
@@ -440,7 +439,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                       onClick={handleRequestOtp}
                       className="text-[11px] text-[#1F6E43] font-bold hover:underline cursor-pointer"
                     >
-                      নতুন কোড পান
+                      নতুন কোড পাঠান
                     </button>
                   </div>
                   <input
@@ -456,7 +455,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                 {/* New Password */}
                 <div>
                   <label className="block text-xs font-bold text-stone-700 mb-1">
-                    নতুন পাসওয়ার্ড
+                    পছন্দের নতুন পাসওয়ার্ড
                   </label>
                   <div className="relative">
                     <input
