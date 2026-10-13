@@ -42,18 +42,7 @@ export const GallerySection: React.FC<Props> = ({ product }) => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         
         {/* Section Heading */}
-        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-          <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#1F6E43] uppercase block mb-1">
-            পণ্য প্রদর্শনী
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#133926] animate-bubble-gum">
-            {product.name} এর আসল ছবি ও মোড়ক
-          </h2>
-          <p className="text-stone-600 text-sm sm:text-base mt-2">
-            আমরা যেমন দেখাই, ঠিক তেমনই আসল এবং পরিচ্ছন্ন মোড়কে আপনার কাছে পৌঁছে দেব
-          </p>
-          <div className="w-16 h-1 bg-[#1F6E43] mx-auto mt-3 rounded-full"></div>
-        </div>
+
 
         {/* Gallery View */}
         <div className="max-w-3xl mx-auto space-y-4">

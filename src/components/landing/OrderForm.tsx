@@ -67,6 +67,7 @@ export const OrderForm: React.FC<Props> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('OrderForm submission triggered');
     setErrorMessage('');
 
     if (!product.inStock) {
