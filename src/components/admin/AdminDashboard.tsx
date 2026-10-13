@@ -52,8 +52,6 @@ export const AdminDashboard: React.FC<Props> = ({
       if (res.product) setProduct(res.product);
       if (res.settings) setSettings(res.settings);
       if (res.isBackendConnected !== undefined) setIsBackendConnected(res.isBackendConnected);
-    } else {
-      onLogout();
     }
   };
 
