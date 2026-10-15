@@ -614,13 +614,73 @@ export const AdminPriceSettings: React.FC<Props> = ({
                     />
                   </label>
                 </div>
-                <textarea
-                  rows={3}
-                  value={galleryImagesInput}
-                  onChange={(e) => setGalleryImagesInput(e.target.value)}
-                  placeholder={`/images/default-methi-mix.jpg\nhttps://res.cloudinary.com/.../bottle.jpg`}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-stone-900 text-xs font-mono focus:border-[#1F6E43] outline-hidden leading-relaxed"
-                ></textarea>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[0, 1, 2].map((idx) => (
+                    <div key={idx} className="bg-white p-3 rounded-xl border border-stone-200 space-y-2">
+                      <div className="text-[10px] font-bold text-stone-500 uppercase">ছবি {idx + 1}</div>
+                      {galleryImagesList[idx] ? (
+                        <>
+                          <img
+                            src={galleryImagesList[idx]}
+                            alt={`Gallery ${idx + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/images/default-methi-mix.jpg';
+                            }}
+                          />
+                          <div className="flex gap-2">
+                            <label className="flex-1 text-center py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 text-[10px] font-bold cursor-pointer">
+                              পরিবর্তন
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  const reader = new FileReader();
+                                  reader.onload = (uploadEvent) => {
+                                    const newImages = [...galleryImagesList];
+                                    newImages[idx] = uploadEvent.target?.result as string;
+                                    setGalleryImagesInput(newImages.join('\n'));
+                                  };
+                                  reader.readAsDataURL(file);
+                                }}
+                                className="hidden"
+                              />
+                            </label>
+                            <a
+                              href={galleryImagesList[idx]}
+                              download={`gallery_image_${idx + 1}.png`}
+                              className="flex-1 text-center py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold"
+                            >
+                              ডাউনলোড
+                            </a>
+                          </div>
+                        </>
+                      ) : (
+                        <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-stone-300 rounded-lg cursor-pointer hover:border-[#1F6E43]">
+                          <span className="text-[10px] text-stone-500">ছবি আপলোড</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const reader = new FileReader();
+                              reader.onload = (uploadEvent) => {
+                                const newImages = [...galleryImagesList];
+                                newImages[idx] = uploadEvent.target?.result as string;
+                                setGalleryImagesInput(newImages.join('\n'));
+                              };
+                              reader.readAsDataURL(file);
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  ))}
+                </div>
                 <p className="text-[11px] text-stone-500 mt-1 font-medium">
                   * আদর্শ সাইজ: <strong className="text-[#1F6E43]">৮০০ × ৮০০ পিক্সেল (800x800 px)</strong> বর্গাকার ছবি। ডিভাইস বা মোবাইল থেকে একাধিক ছবি একসাথে সিলেক্ট করে আপলোড করতে পারবেন।
                 </p>
