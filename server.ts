@@ -3,6 +3,8 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { Order, OrderItem, ProductItem, StoreSettings } from './src/types';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -312,34 +314,20 @@ async function startServer() {
   });
 
   // 4. Admin API: Login
-  app.post('/api/admin/login', (req, res) => {
-    const { password, directAccess } = req.body;
+  app.post('/api/admin/login', async (req, res) => {
+    const { password } = req.body;
     const store = loadStore();
 
-    // Generate fresh session token
-    const token = `token_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-    activeTokens.add(token);
-    if (!(store as any).adminTokens) (store as any).adminTokens = [];
-    (store as any).adminTokens.push(token);
-    if ((store as any).adminTokens.length > 50) {
-      (store as any).adminTokens = (store as any).adminTokens.slice(-50);
-    }
-    saveStore(store);
+    const hashedPassword = store.adminPasswordHash || '';
+    const isMatch = await bcrypt.compare(password || '', hashedPassword);
 
-    // If directAccess requested, immediately grant access
-    if (directAccess) {
-      return res.json({
-        success: true,
-        token,
-        message: 'সরাসরি অ্যাডমিন প্যানেলে সফলভাবে প্রবেশ করা হয়েছে।'
-      });
+    if (!isMatch) {
+      return res.status(401).json({ success: false, error: 'পাসওয়ার্ড সঠিক নয়।' });
     }
 
-    const expectedPassword = (store.adminPassword || process.env.ADMIN_PASSWORD || 'shosti2026').trim();
-    const enteredPassword = typeof password === 'string' ? password.trim() : '';
+    const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET || 'supersecretkey', { expiresIn: '24h' });
 
-    // Allow login if matches current, default 'shosti2026', or empty/direct fallback
-    return res.json({
+    res.json({
       success: true,
       token,
       message: 'লগইন সফল হয়েছে।'
@@ -473,14 +461,16 @@ async function startServer() {
   const requireAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'অননুমোদিত প্রবেশ! প্রবেশাধিকার সম্পূর্ণ সংরক্ষিত।' });
+      return res.status(401).json({ error: 'অননুমোদিত প্রবেশ!' });
     }
     const token = authHeader.split(' ')[1];
-    if (token && token.length > 3) {
-      activeTokens.add(token);
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretkey');
+      (req as any).admin = decoded;
       return next();
+    } catch {
+      return res.status(401).json({ error: 'সেশন অবৈধ বা মেয়াদোত্তীর্ণ হয়েছে।' });
     }
-    return res.status(401).json({ error: 'সেশন অবৈধ বা মেয়াদোত্তীর্ণ হয়েছে। অনুগ্রহ করে আবার লগইন করুন।' });
   };
 
   // 4.5 Admin API: Change Password

@@ -45,24 +45,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
   const [forgotError, setForgotError] = useState('');
   const [forgotSuccess, setForgotSuccess] = useState('');
 
-  // 1. Guaranteed Direct Access
-  const handleInstantDirectAccess = async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await api.adminLogin('shosti2026', true);
-      const token = res.token || `token_direct_${Date.now()}`;
-      onLoginSuccess(token);
-    } catch {
-      const localToken = `token_client_${Date.now()}`;
-      onLoginSuccess(localToken);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 2. Standard Login with entered password
+  // Standard Login with entered password
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const cleanPass = password.trim() || 'shosti2026';
@@ -71,7 +54,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
     setError('');
 
     try {
-      const res = await api.adminLogin(cleanPass, false);
+      const res = await api.adminLogin(cleanPass);
       const token = res.token || `token_pass_${Date.now()}`;
       onLoginSuccess(token);
     } catch {
@@ -291,18 +274,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
               </button>
             </form>
 
-            {/* Direct 1-Click Access Shortcut Button */}
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={handleInstantDirectAccess}
-                disabled={loading}
-                className="w-full py-2.5 px-3 bg-stone-100 hover:bg-emerald-50 border border-stone-200 hover:border-emerald-300 text-[#133926] font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Zap className="w-3.5 h-3.5 text-amber-500" />
-                <span>পাসওয়ার্ড ছাড়া ১-ক্লিকে সরাসরি ড্যাশবোর্ডে প্রবেশ</span>
-              </button>
-            </div>
+
 
             {/* Error Message if any */}
             {error && (

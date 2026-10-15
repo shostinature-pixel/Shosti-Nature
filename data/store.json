@@ -40,7 +40,6 @@
     "deliveryTimeOutside": "২ থেকে ৪ কার্যদিবস",
     "codAvailable": true
   },
-  "adminPassword": "shosti2026",
   "orders": [
     {
       "id": "ord_1791911107372_qomfm",
@@ -189,5 +188,6 @@
     "token_1791908680998_4wg26eyo",
     "token_1791909332849_bb7m43by",
     "token_1791909342758_3jsoghmx"
-  ]
+  ],
+  "adminPasswordHash": "$2b$12$OdBIFIbViWr0d2vPHIvWeOeMxenS3WBKAel0UfdbPYUza0kk3Aj6q"
 }

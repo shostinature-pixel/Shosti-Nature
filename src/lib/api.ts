@@ -188,29 +188,21 @@ export const api = {
   },
 
   // Admin: Login
-  async adminLogin(password?: string, directAccess: boolean = false): Promise<{ success: boolean; token?: string; error?: string }> {
+  // Admin: Login
+  async adminLogin(password: string): Promise<{ success: boolean; token?: string; error?: string }> {
     try {
-      const cleanPassword = typeof password === 'string' ? password.trim() : '';
       const res = await fetch(`${BASE_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: cleanPassword, directAccess })
+        body: JSON.stringify({ password })
       });
-      const contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const data = await res.json();
-        if (data.token) {
-          localStorage.setItem('shosti_admin_token', data.token);
-          return { success: true, token: data.token };
-        }
-      }
-    } catch (err) {
-      console.warn('Backend login fetch error, falling back to local admin session:', err);
+      const data = await res.json();
+      if (!res.ok) return { success: false, error: data.error || 'লগইন ব্যর্থ' };
+      localStorage.setItem('shosti_admin_token', data.token);
+      return { success: true, token: data.token };
+    } catch {
+      return { success: false, error: 'সার্ভার এরর' };
     }
-    // Guaranteed fallback: create local admin session so user is never locked out
-    const localToken = `token_client_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-    localStorage.setItem('shosti_admin_token', localToken);
-    return { success: true, token: localToken };
   },
 
   // Admin: Request Forgot Password OTP
