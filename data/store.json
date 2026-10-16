@@ -189,5 +189,10 @@
     "token_1791909332849_bb7m43by",
     "token_1791909342758_3jsoghmx"
   ],
-  "adminPasswordHash": "$2b$12$OdBIFIbViWr0d2vPHIvWeOeMxenS3WBKAel0UfdbPYUza0kk3Aj6q"
+  "admins": [
+    {
+      "email": "admin@shostinature.com",
+      "passwordHash": "$2b$12$OdBIFIbViWr0d2vPHIvWeOeMxenS3WBKAel0UfdbPYUza0kk3Aj6q"
+    }
+  ]
 }

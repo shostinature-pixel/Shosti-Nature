@@ -315,17 +315,22 @@ async function startServer() {
 
   // 4. Admin API: Login
   app.post('/api/admin/login', async (req, res) => {
-    const { password } = req.body;
+    const { email, password } = req.body;
     const store = loadStore();
 
-    const hashedPassword = store.adminPasswordHash || '';
-    const isMatch = await bcrypt.compare(password || '', hashedPassword);
+    const admin = store.admins.find((a: any) => a.email === email.toLowerCase().trim());
+    
+    if (!admin) {
+        return res.status(401).json({ success: false, error: 'অ্যাডমিন খুঁজে পাওয়া যায়নি।' });
+    }
+
+    const isMatch = await bcrypt.compare(password || '', admin.passwordHash);
 
     if (!isMatch) {
       return res.status(401).json({ success: false, error: 'পাসওয়ার্ড সঠিক নয়।' });
     }
 
-    const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET || 'supersecretkey', { expiresIn: '24h' });
+    const token = jwt.sign({ email: admin.email, role: 'admin' }, process.env.JWT_SECRET || 'supersecretkey', { expiresIn: '24h' });
 
     res.json({
       success: true,

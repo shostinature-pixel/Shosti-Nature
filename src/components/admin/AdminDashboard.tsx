@@ -4,6 +4,7 @@ import { api } from '../../lib/api';
 import { AdminOrderList } from './AdminOrderList';
 import { AdminPriceSettings } from './AdminPriceSettings';
 import { AdminSecuritySettings } from './AdminSecuritySettings';
+import { AdminUserManagement } from './AdminUserManagement';
 import {
   Package,
   Clock,
@@ -17,7 +18,8 @@ import {
   Database,
   RefreshCw,
   AlertTriangle,
-  KeyRound
+  KeyRound,
+  UserPlus
 } from 'lucide-react';
 
 interface Props {
@@ -39,7 +41,7 @@ export const AdminDashboard: React.FC<Props> = ({
   const [orders, setOrders] = useState<Order[]>([]);
   const [product, setProduct] = useState<ProductItem | null>(null);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
-  const [activeTab, setActiveTab] = useState<'orders' | 'settings' | 'security' | 'database'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'settings' | 'security' | 'database' | 'users'>('orders');
 
   const fetchData = async () => {
     setLoading(true);
@@ -284,15 +286,15 @@ export const AdminDashboard: React.FC<Props> = ({
           </button>
 
           <button
-            onClick={() => setActiveTab('database')}
+            onClick={() => setActiveTab('users')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
-              activeTab === 'database'
+              activeTab === 'users'
                 ? 'bg-[#133926] text-white shadow-xs'
                 : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
             }`}
           >
-            <Database className="w-4 h-4" />
-            <span>সিস্টেম ডেটাবেস</span>
+            <UserPlus className="w-4 h-4" />
+            <span>অ্যাডমিন ম্যানেজমেন্ট</span>
           </button>
         </div>
 
@@ -317,6 +319,10 @@ export const AdminDashboard: React.FC<Props> = ({
 
         {activeTab === 'security' && (
           <AdminSecuritySettings token={token} />
+        )}
+        
+        {activeTab === 'users' && (
+          <AdminUserManagement token={token} />
         )}
 
         {activeTab === 'database' && (

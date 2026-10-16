@@ -189,12 +189,12 @@ export const api = {
 
   // Admin: Login
   // Admin: Login
-  async adminLogin(password: string): Promise<{ success: boolean; token?: string; error?: string }> {
+  async adminLogin(email: string, password: string): Promise<{ success: boolean; token?: string; error?: string }> {
     try {
       const res = await fetch(`${BASE_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ email, password })
       });
       const data = await res.json();
       if (!res.ok) return { success: false, error: data.error || 'লগইন ব্যর্থ' };

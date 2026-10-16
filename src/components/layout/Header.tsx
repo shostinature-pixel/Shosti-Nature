@@ -41,7 +41,7 @@ export const Header: React.FC<Props> = ({
           />
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#133926] animate-bubble-gum inline-block">
+              <span className="text-xl sm:text-2xl font-black tracking-tighter text-[#133926] animate-bubble-gum inline-block">
                 {settings.storeName}
               </span>
             </div>

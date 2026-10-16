@@ -48,18 +48,16 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
   // Standard Login with entered password
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const cleanPass = password.trim() || 'shosti2026';
-
+    
     setLoading(true);
     setError('');
 
     try {
-      const res = await api.adminLogin(cleanPass);
+      const res = await api.adminLogin(resetEmail, password);
       const token = res.token || `token_pass_${Date.now()}`;
       onLoginSuccess(token);
-    } catch {
-      const fallbackToken = `token_client_${Date.now()}`;
-      onLoginSuccess(fallbackToken);
+    } catch (err: any) {
+      setError(err.message || 'লগইন ব্যর্থ হয়েছে।');
     } finally {
       setLoading(false);
     }
@@ -229,20 +227,22 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
           /* ================= LOGIN FORM ================= */
           <div className="space-y-4">
             
-            {/* Password Form */}
+            {/* Login Form */}
             <form onSubmit={handleLogin} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between">
-                  <span>পাসওয়ার্ড লিখুন</span>
-                  <button
-                    type="button"
-                    onClick={() => setPassword('shosti2026')}
-                    className="text-[11px] text-[#1F6E43] font-bold hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    <span>ডিফল্ট (shosti2026) বসান</span>
-                  </button>
-                </label>
+                <label className="block text-xs font-bold text-stone-700 mb-1.5">অ্যাডমিন ইমেইল</label>
+                <input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="admin@shostinature.com"
+                  className="w-full px-4 py-3 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm focus:border-[#1F6E43] focus:ring-2 focus:ring-emerald-500/20 outline-hidden transition-all shadow-2xs"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1.5">পাসওয়ার্ড</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -250,12 +250,12 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="পাসওয়ার্ড লিখুন"
                     className="w-full px-4 py-3 pr-11 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm font-mono focus:border-[#1F6E43] focus:ring-2 focus:ring-emerald-500/20 outline-hidden transition-all shadow-2xs"
+                    required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 cursor-pointer"
-                    title={showPassword ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -269,7 +269,7 @@ export const AdminLogin: React.FC<Props> = ({ onLoginSuccess, onBackToStore }) =
                 className="w-full py-3.5 bg-[#1F6E43] hover:bg-[#133926] disabled:bg-stone-400 text-white font-black text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 <Lock className="w-4 h-4 text-emerald-300" />
-                <span>{loading ? 'প্রবেশ করা হচ্ছে...' : 'লগইন করুন (পাসওয়ার্ড: shosti2026)'}</span>
+                <span>{loading ? 'প্রবেশ করা হচ্ছে...' : 'লগইন করুন'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
